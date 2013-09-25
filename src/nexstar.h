@@ -43,6 +43,13 @@ int tc_check_align(int dev);
 int tc_goto_in_progress(int dev);
 int tc_goto_cancel(int dev);
 int tc_echo(int dev, char ch);
+int tc_get_model(int dev);
+int tc_get_version(int dev, char *major, char *minor);
+int tc_get_tracking_mode(int dev);
+int tc_set_tracking_mode(int dev, char mode);
+
+int tc_slew_fixed(int dev, char axis, char direction, char rate);
+int tc_slew_variable(int dev, char axis, char direction, float rate);
 
 /* nextar turns <=> degrees conversion */
 int pnex2dd(char *nex, double *d1, double *d2);

@@ -1,3 +1,8 @@
+/**************************************************************
+	Celestron NexStar compatible telescope control library
+
+	(C)2013 by Rumen G.Bogdanovski
+***************************************************************/
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -8,6 +13,9 @@
 #include "deg2str.h"
 #include "nexstar.h"
 
+/*****************************************************
+ Telescope control
+ *****************************************************/
 int open_telescope(char *dev_file) {
 	int dev_fd;
 	struct termios options;
@@ -66,30 +74,33 @@ int tc_check_align(int dev) {
 	char reply[2];
 
 	if (write_telescope(dev, "J", 1) < 1) return -1;
-	
+
 	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
-	else return reply[0];
+
+	return reply[0];
 }
 
 int tc_goto_in_progress(int dev) {
 	char reply[2];
+
 	if (write_telescope(dev, "L", 1) < 1) return -1;
-	
+
 	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
-	
+
 	if (reply[0]=='1') return 1;
 	if (reply[0]=='0') return 0;
-	
+
 	return -1;
 } 
 
 int tc_goto_cancel(int dev) {
 	char reply;
 	if (write_telescope(dev, "M", 1) < 1) return -1;
-	
+
 	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
-	
+
 	if (reply=='#') return 1;
+
 	return -1;
 } 
 
@@ -99,9 +110,115 @@ int tc_echo(int dev, char ch) {
 	buf[0] = 'K';
 	buf[1] = ch;
 	if (write_telescope(dev, buf, sizeof buf) < 1) return -1;
-	
+
 	if (read_telescope(dev, buf, sizeof buf) < 0) return -1;
-	else return buf[0];
+
+	return buf[0];
+}
+
+int tc_get_model(int dev) {
+	char reply[2];
+
+	if (write_telescope(dev, "m", 1) < 1) return -1;
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+
+	return reply[0];
+}
+
+int tc_get_version(int dev, char *major, char *minor) {
+	char reply[3];
+
+	if (write_telescope(dev, "V", 1) < 1) return -1;
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+
+	*major = reply[0];
+	*minor = reply[1];
+	return reply[0] << 8 + reply[1];
+}
+
+int tc_get_tracking_mode(int dev) {
+	char reply[2];
+
+	if (write_telescope(dev, "t", 1) < 1) return -1;
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+
+	return reply[0];
+}
+
+int tc_set_tracking_mode(int dev, char mode) {
+	char cmd[2];
+	char res;
+	if ((mode < 0) || (mode > 3)) return -1;
+
+	cmd[0] = 'T';
+	cmd[1] = mode;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+	return 1;
+}
+
+int tc_slew_fixed(int dev, char axis, char direction, char rate) {
+	char cmd[8];
+	char res;
+
+	cmd[0] = 'P';
+	cmd[1] = 2;
+
+	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
+	else cmd[2] = _TC_AXIS_DE_ALT;
+
+	if (direction > 0) cmd[3] = _TC_DIR_POSITIVE + 30;
+	else cmd[3] = _TC_DIR_NEGATIVE + 30;
+
+	if ((rate < 0) || (rate > 9)) return -1;
+
+	cmd[4] = rate;
+	cmd[5] = 0;
+	cmd[6] = 0;
+	cmd[7] = 0;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+	return 1;
+}
+
+int tc_slew_variable(int dev, char axis, char direction, float rate) {
+	char cmd[8];
+	char res;
+
+	cmd[0] = 'P';
+	cmd[1] = 3;
+
+	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
+	else cmd[2] = _TC_AXIS_DE_ALT;
+
+	if (direction > 0) cmd[3] = _TC_DIR_POSITIVE + 30;
+	else cmd[3] = _TC_DIR_NEGATIVE + 30;
+
+	if ((rate < 0) || (rate > 9)) return -1;
+
+	int16_t irate = (int)(4*rate);
+	char rateH = irate / 256;
+	char rateL = irate % 256;
+
+	cmd[4] = rateH;
+	cmd[5] = rateL;
+	cmd[6] = 0;
+	cmd[7] = 0;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+	return 1;
 }
 
 /******************************************
@@ -177,48 +294,4 @@ int dd2pnex(double d1, double d2, char *nex) {
 
 	sprintf(nex, "%08X,%08X", nex1, nex2);
 	return 0;
-}
-
-int main(int argc, char *argv[]) {
-	char nex[100];
-	double d1, d2;
-	double ra;
-	double de;
-
-/*	
-	printf("%s %s\n",argv[1], argv[2]);
-	
-	a2dd(&ra, argv[1]);
-	a2dd(&de, argv[2]);
-	
-	printf("RA= %f, DE= %f\n", ra, de);
-		
-	dd2nex(ra,de, nex);
-	printf("%s\n",nex);
-	nex2dd(nex, &d1, &d2);
-	printf("%f, %f\n",d1,d2);
-	
-	printf("\n");
-	
-	dd2pnex(ra,de, nex);
-	printf("%s\n",nex);
-	pnex2dd(nex, &d1, &d2);
-	printf("%f, %f\n",d1,d2);
-	
-	printf("%s ****",dd2a(d1,0));
-	printf(" %s \n",dd2a(d2,0));
-*/
-	
-	int dev = open_telescope("/dev/cu.usbserial");
-	printf("res = %d\n", dev);
-	int align = tc_check_align(dev);
-	printf("align = %d\n", align);
-	
-	int gotop = tc_goto_in_progress(dev);
-	printf("gotop = %d\n", gotop);
-	
-	int echo = tc_echo(dev, 'Z');
-	printf("echo = %c\n", echo);
-	
-	close_telescope(dev);
 }
