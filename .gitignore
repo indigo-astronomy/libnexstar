@@ -1,6 +1,5 @@
 .deps/
 .libs/
-./Makefile
 Makefile.in
 autom4te.cache/
 bin/*
@@ -14,4 +13,14 @@ lib/*
 libtool
 src/stamp-h1
 src/config.h*
+/Makefile
+aclocal.m4
+config.guess
+config.sub
+depcomp
+install-sh
+ltmain.sh
+missing
+
+
 nexstarctl
