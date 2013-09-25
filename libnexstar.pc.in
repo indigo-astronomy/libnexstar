@@ -7,5 +7,5 @@ Name: API for Nexstar compatible telescopes
 Description: API for Nexstar compatible telescopes.
 Version: 0.1
 URL: 
-Libs: -L${libdir} -lliibnexstar
+Libs: -L${libdir} -lnexstar
 Cflags: -I${includedir} 
