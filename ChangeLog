@@ -1,0 +1,4 @@
+Wed Sep 25 15:44:42 2013
+	-libnexstar: builds as .so and .a
+	-implemented several functions
+	-not tested yet
