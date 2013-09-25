@@ -2,22 +2,30 @@
 
 #include <nexstar.h>
 #include <stdio.h>
+#include <deg2str.h>
 
 int main(int argc, char *argv[]) {
 	char nex[100];
 	double d1, d2;
 	double ra;
 	double de;
+	
+	int dev = open_telescope("/dev/cu.usbserial");
+	printf("res = %d\n", dev);
+	int align = tc_check_align(dev);
+	printf("align = %d\n", align);
 
 /*	
 	printf("%s %s\n",argv[1], argv[2]);
 	
 	a2dd(&ra, argv[1]);
 	a2dd(&de, argv[2]);
-	
-	printf("RA= %f, DE= %f\n", ra, de);
+*/
+
+	int res = tc_get_rade_p(dev, &ra, &de);
+	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
 		
-	dd2nex(ra,de, nex);
+/*	idd2nex(ra,de, nex);
 	printf("%s\n",nex);
 	nex2dd(nex, &d1, &d2);
 	printf("%f, %f\n",d1,d2);
@@ -28,16 +36,28 @@ int main(int argc, char *argv[]) {
 	printf("%s\n",nex);
 	pnex2dd(nex, &d1, &d2);
 	printf("%f, %f\n",d1,d2);
+*/	
+//	printf("%s ****",dh2a(ra/15));
+//	printf(" %s \n",dd2a(de,0));
 	
-	printf("%s ****",dd2a(d1,0));
-	printf(" %s \n",dd2a(d2,0));
-*/
 	
-	int dev = open_telescope("/dev/cu.usbserial");
-	printf("res = %d\n", dev);
-	int align = tc_check_align(dev);
-	printf("align = %d\n", align);
+	res = tc_goto_rade(dev, ra-0.5, de-.5);
 	
+	while (tc_goto_in_progress(dev)) {
+		sleep(1);
+	}
+	res = tc_get_rade_p(dev, &ra, &de);
+	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
+	
+	res = tc_goto_rade(dev, ra, de);
+	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
+	
+	
+//	printf("%s ****",dh2a(ra/15));
+//	printf(" %s \n",dd2a(de,0));
+
+/*
+		
 	int gotop = tc_goto_in_progress(dev);
 	printf("gotop = %d\n", gotop);
 	
@@ -75,6 +95,6 @@ int main(int argc, char *argv[]) {
 	
 	int tmode3 = tc_set_tracking_mode(dev, TC_TRACK_EQ_NORTH);
 	printf("set sacking EQ = %d\n", tmode3);
-	
+*/	
 	close_telescope(dev);
 }

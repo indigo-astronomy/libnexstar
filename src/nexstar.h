@@ -48,6 +48,27 @@ int tc_get_version(int dev, char *major, char *minor);
 int tc_get_tracking_mode(int dev);
 int tc_set_tracking_mode(int dev, char mode);
 
+int _tc_get_rade(int dev, double *ra, double *de, char precise);
+#define tc_get_rade(dev, ra, de) (_tc_get_rade(dev, ra, de, 0))
+#define tc_get_rade_p(dev, ra, de) (_tc_get_rade(dev, ra, de, 1))
+
+int _tc_get_azalt(int dev, double *az, double *alt, char precise);
+#define tc_get_azalt(dev, az, alt) (_tc_get_azalt(dev, az, alt, 0))
+#define tc_get_azalt_p(dev, az, alt) (_tc_get_azalt(dev, az, alt, 1))
+
+int _tc_goto_rade(int dev, double ra, double de, char precise);
+#define tc_goto_rade(dev, ra, de) (_tc_goto_rade(dev, ra, de, 0))
+#define tc_goto_rade_p(dev, ra, de) (_tc_goto_rade(dev, ra, de, 1))
+
+int _tc_goto_azalt(int dev, double az, double alt, char precise);
+#define tc_goto_azalt(dev, az, alt) (_tc_goto_azalt(dev, az, alt, 0))
+#define tc_goto_azalt_p(dev, az, alt) (_tc_goto_azalt(dev, az, alt, 1))
+
+int _tc_sync_rade(int dev, double ra, double de, char precise);
+#define tc_sync_rade(dev, ra, de) (_tc_sync_rade(dev, ra, de, 0))
+#define tc_sync_rade_p(dev, ra, de) (_tc_sync_rade(dev, ra, de, 1))
+
+
 int tc_slew_fixed(int dev, char axis, char direction, char rate);
 int tc_slew_variable(int dev, char axis, char direction, float rate);
 

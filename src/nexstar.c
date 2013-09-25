@@ -70,6 +70,106 @@ int read_telescope(int devfd, char *reply, int len) {
 	return -1;
 }
 
+int _tc_get_rade(int dev, double *ra, double *de, char precise) {
+	char reply[18];
+
+	if (precise) {
+		if (write_telescope(dev, "e", 1) < 1) return -1;
+	} else {
+		if (write_telescope(dev, "E", 1) < 1) return -1;
+	}
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+
+	if (precise) pnex2dd(reply, ra, de);
+	else nex2dd(reply, ra, de);
+
+	return 0;
+}
+
+int _tc_get_azalt(int dev, double *az, double *alt, char precise) {
+	char reply[18];
+
+	if (precise) {
+		if (write_telescope(dev, "z", 1) < 1) return -1;
+	} else {
+		if (write_telescope(dev, "Z", 1) < 1) return -1;
+	}
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+
+	if (precise) pnex2dd(reply, az, alt);
+	else nex2dd(reply, az, alt);
+
+	return 0;
+}
+
+int _tc_goto_rade(int dev, double ra, double de, char precise) {
+	char nex[18];
+	char reply;
+
+	if ((ra < 0) || (ra > 360)) return -2;
+	if ((de < -90) || (de > 90)) return -2;
+
+	if (precise) {
+		nex[0]='r';
+		dd2pnex(ra, de, nex+1);
+		if (write_telescope(dev, nex, 18) < 1) return -1;
+	} else {
+		nex[0]='R';
+		dd2nex(ra, de, nex+1);
+		if (write_telescope(dev, nex, 10) < 1) return -1;
+	}
+
+	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
+
+	return 0;
+}
+
+int _tc_goto_azalt(int dev, double az, double alt, char precise) {
+	char nex[18];
+	char reply;
+
+	if ((az < 0) || (az > 360)) return -2;
+	if ((alt < -90) || (alt > 90)) return -2;
+
+	if (precise) {
+		nex[0]='b';
+		dd2pnex(az, alt, nex+1);
+		if (write_telescope(dev, nex, 18) < 1) return -1;
+	} else {
+		nex[0]='B';
+		dd2nex(az, alt, nex+1);
+		if (write_telescope(dev, nex, 10) < 1) return -1;
+	}
+
+	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
+
+	return 0;
+}
+
+int _tc_sync_rade(int dev, double ra, double de, char precise) {
+	char nex[18];
+	char reply;
+
+	if ((ra < 0) || (ra > 360)) return -2;
+	if ((de < -90) || (de > 90)) return -2;
+
+	if (precise) {
+		nex[0]='s';
+		dd2pnex(ra, de, nex+1);
+		if (write_telescope(dev, nex, 18) < 1) return -1;
+	} else {
+		nex[0]='S';
+		dd2nex(ra, de, nex+1);
+		if (write_telescope(dev, nex, 10) < 1) return -1;
+	}
+
+	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
+
+	return 0;
+}
+
 int tc_check_align(int dev) {
 	char reply[2];
 
@@ -99,7 +199,7 @@ int tc_goto_cancel(int dev) {
 
 	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
 
-	if (reply=='#') return 1;
+	if (reply=='#') return 0;
 
 	return -1;
 } 
@@ -160,7 +260,7 @@ int tc_set_tracking_mode(int dev, char mode) {
 
 	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
 
-	return 1;
+	return 0;
 }
 
 int tc_slew_fixed(int dev, char axis, char direction, char rate) {
@@ -187,7 +287,7 @@ int tc_slew_fixed(int dev, char axis, char direction, char rate) {
 
 	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
 
-	return 1;
+	return 0;
 }
 
 int tc_slew_variable(int dev, char axis, char direction, float rate) {
@@ -217,7 +317,7 @@ int tc_slew_variable(int dev, char axis, char direction, float rate) {
 
 	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
 
-	return 1;
+	return 0;
 }
 
 /******************************************
