@@ -200,14 +200,13 @@ int tc_slew_variable(int dev, char axis, char direction, float rate) {
 	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
 	else cmd[2] = _TC_AXIS_DE_ALT;
 
-	if (direction > 0) cmd[3] = _TC_DIR_POSITIVE + 30;
-	else cmd[3] = _TC_DIR_NEGATIVE + 30;
-
-	if ((rate < 0) || (rate > 9)) return -1;
+	if (direction > 0) cmd[3] = _TC_DIR_POSITIVE;
+	else cmd[3] = _TC_DIR_NEGATIVE;
 
 	int16_t irate = (int)(4*rate);
-	char rateH = irate / 256;
-	char rateL = irate % 256;
+	unsigned char rateH = (char)(irate / 256);
+	unsigned char rateL = (char)(irate % 256);
+	//printf("rateH = %d, rateL = %d , irate = %d\n", rateH, rateL, irate);
 
 	cmd[4] = rateH;
 	cmd[5] = rateL;
