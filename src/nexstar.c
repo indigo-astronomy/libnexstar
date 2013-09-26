@@ -14,7 +14,7 @@
 #include "nexstar.h"
 
 /*****************************************************
- Telescope control
+ Telescope communication
  *****************************************************/
 int open_telescope(char *dev_file) {
 	int dev_fd;
@@ -34,14 +34,13 @@ int open_telescope(char *dev_file) {
 	options.c_lflag = 0 ;
 	options.c_oflag = 0;
 	options.c_iflag = ~IGNBRK;
-	options.c_oflag = 0;                // no remapping, no delays
-	options.c_cc[VMIN]  = 0;            // read doesn't block
-    options.c_cc[VTIME] = 50;            // 5 seconds read timeout
-    options.c_iflag &= ~(IXON | IXOFF | IXANY); // shut off xon/xoff ctrl
-	options.c_cflag |= (CLOCAL | CREAD);// ignore modem controls,
-                                        // enable reading
-    options.c_cflag &= ~(PARENB | PARODD);      // shut off parity
-    options.c_cflag |= 0;
+	options.c_oflag = 0;		// no remapping, no delays
+	options.c_cc[VMIN]  = 0;	// read doesn't block
+	options.c_cc[VTIME] = 50;	// 5 seconds read timeout
+	options.c_iflag &= ~(IXON | IXOFF | IXANY);	// shut off xon/xoff ctrl
+	options.c_cflag |= (CLOCAL | CREAD);	// ignore modem controls,enable reading
+	options.c_cflag &= ~(PARENB | PARODD);	// shut off parity
+	options.c_cflag |= 0;
 	options.c_cflag &= ~CSTOPB;
 	options.c_cflag &= ~CRTSCTS;
 	
@@ -69,6 +68,10 @@ int read_telescope(int devfd, char *reply, int len) {
 	}
 	return -1;
 }
+
+/*****************************************************
+ Telescope commands
+ *****************************************************/
 
 int _tc_get_rade(int dev, double *ra, double *de, char precise) {
 	char reply[18];
