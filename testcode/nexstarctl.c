@@ -11,10 +11,16 @@ int main(int argc, char *argv[]) {
 	double de;
 	double lon,lat;
 	
+	unsigned char deg,min,sec, sign;
+	dd2dms(-22.9998, &deg, &min, &sec, &sign);
+	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
+	
 	int dev = open_telescope("/dev/cu.usbserial");
 	printf("res = %d\n", dev);
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
+	
+	printf("XXX %d\n",tc_set_location(dev, +123.999, 79.9999));
 	
 	int r= tc_get_location(dev, &lon, &lat);
 	

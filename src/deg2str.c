@@ -174,3 +174,24 @@ char *dh2a(double h)
 
 	return str;
 }
+
+void dd2dms(double ang, unsigned char *deg, unsigned char *min, unsigned char *sec, char *sign) {
+	if (ang >= 0) {
+		int a = (int)(ang * 3600 + 0.5);
+		*deg = (unsigned char)(a / 3600);
+		int f = (int)(a % 3600);
+		*min = (unsigned char)(f / 60);
+		*sec = (unsigned char)(f % 60);
+		*sign = 0;
+		return;
+	} else {
+		ang *= -1;
+		int a = (int)(ang * 3600 + 0.5);
+		*deg = (unsigned char)(a / 3600);
+		int f = (int)(a % 3600);
+		*min = (unsigned char)(f / 60);
+		*sec = (unsigned char)(f % 60);
+		*sign = 1;
+		return;
+	}
+}

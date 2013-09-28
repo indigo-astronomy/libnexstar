@@ -341,6 +341,37 @@ int tc_get_location(int dev, double *lon, double *lat) {
 	return 0;
 }
 
+int tc_set_location(int dev, double lon, double lat) {
+	unsigned char cmd[9];
+	char res;
+	unsigned char deg, min, sec, sign;
+
+	cmd[0] = 'W';
+	dd2dms(lat, &deg, &min, &sec, &sign);
+	if (deg > 90) {
+		return -2;
+	}
+	cmd[1] = deg;
+	cmd[2] = min;
+	cmd[3] = sec;
+	cmd[4] = sign;
+
+	dd2dms(lon, &deg, &min, &sec, &sign);
+	if (deg > 180) {
+		return -2;
+	}
+	cmd[5] = deg;
+	cmd[6] = min;
+	cmd[7] = sec;
+	cmd[8] = sign;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+	return 0;
+}
+
 /******************************************
  conversion:	nexstar <-> decimal degrees
  ******************************************/
