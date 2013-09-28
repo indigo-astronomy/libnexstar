@@ -9,11 +9,16 @@ int main(int argc, char *argv[]) {
 	double d1, d2;
 	double ra;
 	double de;
+	double lon,lat;
 	
 	int dev = open_telescope("/dev/cu.usbserial");
 	printf("res = %d\n", dev);
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
+	
+	int r= tc_get_location(dev, &lon, &lat);
+	
+	printf("lon = %f, lat = %f, res = %d\n", lon, lat, r);
 
 /*	
 	printf("%s %s\n",argv[1], argv[2]);
@@ -37,13 +42,13 @@ int main(int argc, char *argv[]) {
 	pnex2dd(nex, &d1, &d2);
 	printf("%f, %f\n",d1,d2);
 */	
-//	printf("%s ****",dh2a(ra/15));
-//	printf(" %s \n",dd2a(de,0));
+	printf("%s ****",dd2a(lon,0));
+	printf(" %s \n",dd2a(lat,0));
 	
-	
+	/*
 	res = tc_goto_rade(dev, ra-0.5, de-.5);
 	
-	while (tc_goto_in_progress(dev)) {
+	while (tc_goto_in_progress(dev)>0) {
 		sleep(1);
 	}
 	res = tc_get_rade_p(dev, &ra, &de);
@@ -51,7 +56,7 @@ int main(int argc, char *argv[]) {
 	
 	res = tc_goto_rade(dev, ra, de);
 	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
-	
+	*/
 	
 //	printf("%s ****",dh2a(ra/15));
 //	printf(" %s \n",dd2a(de,0));

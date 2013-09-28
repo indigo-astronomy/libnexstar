@@ -323,6 +323,24 @@ int tc_slew_variable(int dev, char axis, char direction, float rate) {
 	return 0;
 }
 
+int tc_get_location(int dev, double *lon, double *lat) {
+	unsigned char reply[9];
+
+	if (write_telescope(dev, "w", 1) < 1) return -1;
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+
+	*lat = (double)reply[0] + reply[1]/60.0 + reply[2]/3600.0;
+	*lon = (double)reply[4] + reply[5]/60.0 + reply[6]/3600.0;
+	if (reply[3]) {
+		*lat *= -1;
+	}
+	if (reply[7]) {
+		*lon *= -1;
+	}
+	return 0;
+}
+
 /******************************************
  conversion:	nexstar <-> decimal degrees
  ******************************************/

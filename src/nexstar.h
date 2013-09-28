@@ -68,6 +68,8 @@ int _tc_sync_rade(int dev, double ra, double de, char precise);
 #define tc_sync_rade(dev, ra, de) (_tc_sync_rade(dev, ra, de, 0))
 #define tc_sync_rade_p(dev, ra, de) (_tc_sync_rade(dev, ra, de, 1))
 
+int tc_get_location(int dev, double *lon, double *lat);
+
 int tc_slew_fixed(int dev, char axis, char direction, char rate);
 int tc_slew_variable(int dev, char axis, char direction, float rate);
 
