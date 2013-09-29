@@ -397,6 +397,38 @@ time_t tc_get_time(int dev, time_t *ttime, int *tz, int *dst) {
 	return *ttime;
 }
 
+int tc_set_time(char dev, time_t ttime, int tz, int dst) {
+	unsigned char cmd[9];
+	struct tm tms;
+	char res;
+
+	if (tz < 0) tz += 256;
+
+	if (dst) dst = 1;
+	else dst=0;
+
+	localtime_r(&ttime, &tms);
+
+	cmd[0] = 'H';
+	cmd[1] = (unsigned char)tms.tm_hour;
+	cmd[2] = (unsigned char)tms.tm_min;
+	cmd[3] = (unsigned char)tms.tm_sec;
+	cmd[4] = (unsigned char)(tms.tm_mon + 1);
+	cmd[5] = (unsigned char)tms.tm_mday;
+	// year is actual_year-1900
+	// here is required actual_year-2000
+	// so we need year-100
+	cmd[6] = (unsigned char)(tms.tm_year - 100);
+	cmd[7] = (unsigned char)tz;
+	cmd[8] = (unsigned char)dst;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+	return 0;
+}
+
 /******************************************
  conversion:	nexstar <-> decimal degrees
  ******************************************/

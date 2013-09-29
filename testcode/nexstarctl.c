@@ -32,11 +32,16 @@ int main(int argc, char *argv[]) {
 	}
 	*/
 	
-	printf("XXX %d\n",tc_set_location(dev, +123.999, 79.9999));
+	//printf("XXX %d\n",tc_set_location(dev, +123.999, 79.9999));
 	
 	int r= tc_get_location(dev, &lon, &lat);
 	
 	printf("lon = %f, lat = %f, res = %d\n", lon, lat, r);
+
+
+	//time_t tm;
+	//time(&tm);
+	//printf("TTT %d\n",tc_set_time(dev, tm, +2, 1));
 
 /*	
 	printf("%s %s\n",argv[1], argv[2]);

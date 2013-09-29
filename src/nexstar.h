@@ -73,6 +73,7 @@ int tc_get_location(int dev, double *lon, double *lat);
 int tc_set_location(int dev, double lon, double lat);
 
 time_t tc_get_time(int dev, time_t *ttime, int *tz, int *dst);
+int tc_set_time(char dev, time_t ttime, int tz, int dst);
 
 int tc_slew_fixed(int dev, char axis, char direction, char rate);
 int tc_slew_variable(int dev, char axis, char direction, float rate);
