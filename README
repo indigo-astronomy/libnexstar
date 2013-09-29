@@ -1,0 +1,18 @@
+libnexstar version 0.1
+=======================
+
+This library implements the serial commands supported by the Celestron
+NexStar hand control. This applies to the NexStar GPS, NexStar GPS-SA,
+NexStar iSeries, NexStar SE Series, NexStar GT, CPC, SLT, Advanced-VX,
+Advanced-GT, and CGE mounts.
+
+Communication to the hand control is 9600 bits/sec, no parity and one
+stop bit via the RS-232 port on the base of the hand control.
+
+COPYRIGHT AND LICENCE
+
+Copyright (C) 2013 by Rumen G.Bogdanovski
+
+This library is free software; you can redistribute it and/or modify
+it under the terms of GPL3
+

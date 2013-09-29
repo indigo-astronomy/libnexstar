@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 	dd2dms(-22.9998, &deg, &min, &sec, &sign);
 	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
 	
-	int dev = open_telescope("/dev/cu.usbserial");
+	int dev = open_telescope("/dev/ttyUSB0");
 	printf("res = %d\n", dev);
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
