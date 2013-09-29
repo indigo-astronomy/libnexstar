@@ -1,3 +1,8 @@
+Sun Sep 29 16:44:53 2013 - 0.1-a1
+	- implemented all the major commands
+	- fixed read_telescope()
+	- fixed open_telescope() for raw mode
+	- fixed declination +90 shown as -270
 Wed Sep 25 15:44:42 2013
 	-libnexstar: builds as .so and .a
 	-implemented several functions
