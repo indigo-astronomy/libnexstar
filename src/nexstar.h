@@ -32,11 +32,12 @@
 #define DEG2RAD (3.1415926535897932384626433832795/180.0)
 #define RAD2DEG (180.0/3.1415926535897932384626433832795)
 
+#include <time.h>
 /* Telescope communication */
 int open_telescope(char *dev_file);
 #define close_telescope(dev_fd) (close(dev_fd))
 #define write_telescope(dev_fd, buf, size) (write(dev_fd, buf, size))
-int read_telescope(int devfd, char *reply, int len);
+int read_telescope(int devfd, unsigned char *reply, int len);
 
 /* Telescope commands */
 int tc_check_align(int dev);
@@ -69,6 +70,9 @@ int _tc_sync_rade(int dev, double ra, double de, char precise);
 #define tc_sync_rade_p(dev, ra, de) (_tc_sync_rade(dev, ra, de, 1))
 
 int tc_get_location(int dev, double *lon, double *lat);
+int tc_set_location(int dev, double lon, double lat);
+
+time_t tc_get_time(int dev, time_t *ttime, int *tz, int *dst);
 
 int tc_slew_fixed(int dev, char axis, char direction, char rate);
 int tc_slew_variable(int dev, char axis, char direction, float rate);

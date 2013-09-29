@@ -20,6 +20,18 @@ int main(int argc, char *argv[]) {
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
 	
+	/*
+	unsigned char i, echo;
+	for (i=0; i<255; i++) {
+		echo = (unsigned char) tc_echo(dev, i);
+		if (echo != i) {
+			printf("ERROR: Sent %d read %d\n", i, echo);
+		} else {
+			printf("OK: Sent %d read %d\n", i, echo);
+		}
+	}
+	*/
+	
 	printf("XXX %d\n",tc_set_location(dev, +123.999, 79.9999));
 	
 	int r= tc_get_location(dev, &lon, &lat);
@@ -50,6 +62,13 @@ int main(int argc, char *argv[]) {
 */	
 	printf("%s ****",dd2a(lon,0));
 	printf(" %s \n",dd2a(lat,0));
+
+	time_t ttime;
+	int tz;
+	int dst;
+	tc_get_time(dev, &ttime, &tz, &dst);
+	
+	printf("time = %s, tz = %d, dst = %d\n", ctime(&ttime), tz, dst);   
 	
 	/*
 	res = tc_goto_rade(dev, ra-0.5, de-.5);

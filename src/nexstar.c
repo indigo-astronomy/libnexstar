@@ -13,37 +13,38 @@
 #include "deg2str.h"
 #include "nexstar.h"
 
+#include <time.h>
+
 /*****************************************************
  Telescope communication
  *****************************************************/
 int open_telescope(char *dev_file) {
 	int dev_fd;
 	struct termios options;
-	
+
 	if ((dev_fd = open(dev_file, O_RDWR | O_NOCTTY | O_SYNC))==-1) {
 		return -1;
 	}
-	
+
 	memset(&options, 0, sizeof options);
 	if (tcgetattr(dev_fd, &options) != 0) {
 		close(dev_fd);
 		return -1;
 	}
+
 	cfsetispeed(&options,B9600);
 	cfsetospeed(&options,B9600);
-	options.c_lflag = 0 ;
-	options.c_oflag = 0;
-	options.c_iflag = ~IGNBRK;
-	options.c_oflag = 0;		// no remapping, no delays
+	/* Finaly!!!!  Works on Linux & Solaris  */
+	options.c_lflag &= ~(ICANON|ECHO|ECHOE|ISIG|IEXTEN);
+	options.c_oflag &= ~(OPOST);
+	options.c_iflag &= ~(INLCR|ICRNL|IXON|IXOFF|IXANY|IMAXBEL);
+	options.c_cflag &= ~PARENB;
+	options.c_cflag &= ~CSTOPB;
+	options.c_cflag &= ~CSIZE;
+	options.c_cflag |= CS8;
 	options.c_cc[VMIN]  = 0;	// read doesn't block
 	options.c_cc[VTIME] = 50;	// 5 seconds read timeout
-	options.c_iflag &= ~(IXON | IXOFF | IXANY);	// shut off xon/xoff ctrl
-	options.c_cflag |= (CLOCAL | CREAD);	// ignore modem controls,enable reading
-	options.c_cflag &= ~(PARENB | PARODD);	// shut off parity
-	options.c_cflag |= 0;
-	options.c_cflag &= ~CSTOPB;
-	options.c_cflag &= ~CRTSCTS;
-	
+
 	if (tcsetattr(dev_fd,TCSANOW, &options) != 0) {
 		close(dev_fd);
 		return -1;
@@ -52,20 +53,21 @@ int open_telescope(char *dev_file) {
 	return dev_fd;
 }
 
-int read_telescope(int devfd, char *reply, int len) {
+int read_telescope(int devfd, unsigned char *reply, int len) {
 	char c;
 	int res;
 	int count=0;
-	
-	while ((res=read(devfd,&c,1)) != -1 ) {
-		if ((res == 1) && (count < len)) {
+
+	while ((count < len) && ((res=read(devfd,&c,1)) != -1 )) {
+		if (res == 1) {
 			reply[count] = c;
 			count++;
-			if (c == '#') return count;
+			//printf("R: %d, C:%d\n", reply[count-1], count);
 		} else {
 			return -1;
 		}
 	}
+	if (c == '#') return count;
 	return -1;
 }
 
@@ -372,6 +374,29 @@ int tc_set_location(int dev, double lon, double lat) {
 	return 0;
 }
 
+time_t tc_get_time(int dev, time_t *ttime, int *tz, int *dst) {
+	char reply[9];
+	struct tm tms;
+
+	if (write_telescope(dev, "h", 1) < 1) return -1;
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+
+	tms.tm_hour = reply[0];
+	tms.tm_min = reply[1];
+	tms.tm_sec = reply[2];
+	tms.tm_mon = reply[3] - 1;
+	tms.tm_mday = reply[4];
+	tms.tm_year = 100 + reply[5];
+	tms.tm_isdst = reply[7];
+	*tz = (int)reply[6];
+	if (*tz > 12) *tz -= 256;
+	*dst = reply[7];
+
+	*ttime = mktime(&tms);
+	return *ttime;
+}
+
 /******************************************
  conversion:	nexstar <-> decimal degrees
  ******************************************/
@@ -386,8 +411,8 @@ int pnex2dd(char *nex, double *d1, double *d2){
 	d2_factor = d2_x / (double)0xffffffff;
 	*d1 = 360 * d1_factor; 
 	*d2 = 360 * d2_factor;
-	if (*d2 < -90) *d2 += 360;
-	if (*d2 > 90) *d2 -= 360;
+	if (*d2 < -90.0) *d2 += 360;
+	if (*d2 > 90.0000001) *d2 -= 360;
 
 	return 0;
 }
@@ -403,8 +428,8 @@ int nex2dd(char *nex, double *d1, double *d2){
 	d2_factor = d2_x / 65536.0;
 	*d1 = 360 * d1_factor; 
 	*d2 = 360 * d2_factor;
-	if (*d2 < -90) *d2 += 360;
-	if (*d2 > 90) *d2 -= 360;
+	if (*d2 < -90.0) *d2 += 360;
+	if (*d2 > 90.0000001) *d2 -= 360;
 
 	return 0;
 }
