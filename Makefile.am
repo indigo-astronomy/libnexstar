@@ -13,7 +13,7 @@ pkgconfig_DATA = libnexstar.pc
 
 man8_MANS = man/libnexstar.man
 	 
-EXTRA_DIST = $(man8_MANS) $(sysconf_DATA) testcode/*
+EXTRA_DIST = $(man8_MANS) $(sysconf_DATA) testcode/*.c testcode/Makefile examples/*.c examples/Makefile
 
 #install-exec-hook:
 #	cp $(srcdir)/bootscripts/cwhod /etc/init.d/

@@ -9,6 +9,7 @@ configure
 *.o
 *.lo
 *.pc
+*~
 lib/*
 libtool
 src/stamp-h1
@@ -22,5 +23,6 @@ install-sh
 ltmain.sh
 missing
 
-
+get_rade1
+get_rade2
 nexstarctl
