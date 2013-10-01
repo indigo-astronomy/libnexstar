@@ -33,6 +33,12 @@
 #define RAD2DEG (180.0/3.1415926535897932384626433832795)
 
 #include <time.h>
+#include <unistd.h>
+
+#ifdef __cplusplus /* If this is a C++ compiler, use C linkage */
+extern "C" {
+#endif
+
 /* Telescope communication */
 int open_telescope(char *dev_file);
 #define close_telescope(dev_fd) (close(dev_fd))
@@ -83,5 +89,9 @@ int pnex2dd(char *nex, double *d1, double *d2);
 int nex2dd(char *nex, double *d1, double *d2);
 int dd2nex(double d1, double d2, char *nex);
 int dd2pnex(double d1, double d2, char *nex);
+
+#ifdef __cplusplus /* If this is a C++ compiler, end C linkage */
+}
+#endif
 
 #endif /* __NEXSTAR_H */

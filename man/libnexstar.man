@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH libnexstar 8 "September 2013" "libnexstar(8)" "libnexstar manual page"
+.TH libnexstar 7 "September 2013" "libnexstar(7)" "libnexstar manual page"
 .SH NAME
 C API to control NexStar compatible telescopes
 .SH SYNOPSIS
