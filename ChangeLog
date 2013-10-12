@@ -1,3 +1,5 @@
+Sat Oct 12 18:24:11 2013 - 0.1-a3
+	- made it C++ linkable
 Sun Sep 29 16:44:53 2013 - 0.1-a1
 	- implemented all the major commands
 	- fixed read_telescope()
