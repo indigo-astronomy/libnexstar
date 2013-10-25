@@ -1,3 +1,5 @@
+Fri Oct 25 14:56:41 2013 - 0.1-a4
+	- added get_model_name()
 Sat Oct 12 18:24:11 2013 - 0.1-a3
 	- made it C++ linkable
 Sun Sep 29 16:44:53 2013 - 0.1-a1

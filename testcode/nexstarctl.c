@@ -10,6 +10,18 @@ int main(int argc, char *argv[]) {
 	double ra;
 	double de;
 	double lon,lat;
+
+	get_model_name(1,nex,100);
+	printf("Mount: %s\n",nex);
+
+	get_model_name(2,nex,100);
+	printf("Mount: %s\n",nex);
+
+	get_model_name(3,nex,100);
+	printf("Mount: %s\n",nex);
+
+	get_model_name(19,nex,100);
+	printf("Mount: %s\n",nex);
 	
 	unsigned char deg,min,sec, sign;
 	dd2dms(-22.9998, &deg, &min, &sec, &sign);

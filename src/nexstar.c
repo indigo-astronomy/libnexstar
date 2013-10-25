@@ -429,6 +429,48 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	return 0;
 }
 
+char *get_model_name(int id, char *name, int len) {
+	switch(id) {
+	case 1:
+		strncpy(name,"NexStar GPS Series",len);
+		return name;
+	case 3:
+		strncpy(name,"NexStar i-Series",len);
+		return name;
+	case 4:
+		strncpy(name,"NexStar i-Series SE",len);
+		return name;
+	case 5:
+		strncpy(name,"CGE",len);
+		return name;
+	case 6:
+		strncpy(name,"Advanced GT",len);
+		return name;
+	case 7:
+		strncpy(name,"SLT",len);
+		return name;
+	case 9:
+		strncpy(name,"CPC",len);
+		return name;
+	case 10:
+		strncpy(name,"GT",len);
+		return name;
+	case 11:
+		strncpy(name,"NexStar 4/5 SE",len);
+		return name;
+	case 12:
+		strncpy(name,"NexStar 6/8 SE",len);
+		return name;
+	case 19:
+		strncpy(name,"Advanced VX",len);
+		return name;
+	default:
+		name[0]='\0';
+		return NULL;
+	}
+	return NULL;
+}
+
 /******************************************
  conversion:	nexstar <-> decimal degrees
  ******************************************/

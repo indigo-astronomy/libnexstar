@@ -84,6 +84,8 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst);
 int tc_slew_fixed(int dev, char axis, char direction, char rate);
 int tc_slew_variable(int dev, char axis, char direction, float rate);
 
+char *get_model_name(int id, char *name, int len);
+
 /* nextar turns <=> degrees conversion */
 int pnex2dd(char *nex, double *d1, double *d2);
 int nex2dd(char *nex, double *d1, double *d2);

@@ -181,11 +181,21 @@ that matches the rates of the hand control. To stop the slew the rate should be
 set to 0. Note that TC_AXIS_RA and TC_AXIS_AZM are different names for the same axis
 and can be used interchangeably. The same applies to TC_AXIS_DE and TC_AXIS_ALT.
 On success 0 is returned, on error -1.
-
 .TP
 .B int tc_slew_variable(int dev, char axis, char direction, float rate);
-Start/stop slew like tc_slew_fixed(). The only difference is that the rate 
+Start/stop slew like tc_slew_fixed(). The only difference is that the rate
 here is arbitrary, given in arc-seconds per second ("/sec).
+.TP
+.B char *get_model_name(int id, char *name, int len);
+Converts the mount code returned by
+.B tc_get_model()
+to string and stores it in
+.B *name
+if it is shorter than
+.B len.
+The function returns
+.B *name
+if the mount is known or NULL in case it is not known.
 
 .SS COORDINATE CONVERSION
 .TP
