@@ -11,27 +11,19 @@ int main(int argc, char *argv[]) {
 	double de;
 	double lon,lat;
 
-	get_model_name(1,nex,100);
-	printf("Mount: %s\n",nex);
-
-	get_model_name(2,nex,100);
-	printf("Mount: %s\n",nex);
-
-	get_model_name(3,nex,100);
-	printf("Mount: %s\n",nex);
-
-	get_model_name(19,nex,100);
-	printf("Mount: %s\n",nex);
-	
 	unsigned char deg,min,sec, sign;
 	dd2dms(-22.9998, &deg, &min, &sec, &sign);
 	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
-	
+
 	int dev = open_telescope("/dev/ttyUSB0");
-	printf("res = %d\n", dev);
+	printf("dev = %d\n", dev);
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
-	
+
+	int mountno= tc_get_model(dev);
+	get_model_name(mountno,nex,100);
+	printf("Mount id=%d name=%s\n", mountno, nex);
+
 	/*
 	unsigned char i, echo;
 	for (i=0; i<255; i++) {

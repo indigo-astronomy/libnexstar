@@ -461,7 +461,7 @@ char *get_model_name(int id, char *name, int len) {
 	case 12:
 		strncpy(name,"NexStar 6/8 SE",len);
 		return name;
-	case 19:
+	case 20:
 		strncpy(name,"Advanced VX",len);
 		return name;
 	default:
