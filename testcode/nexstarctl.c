@@ -11,18 +11,18 @@ int main(int argc, char *argv[]) {
 	double de;
 	double lon,lat;
 
-	unsigned char deg,min,sec, sign;
-	dd2dms(-22.9998, &deg, &min, &sec, &sign);
-	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
+//	unsigned char deg,min,sec, sign;
+//	dd2dms(-22.9998, &deg, &min, &sec, &sign);
+//	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
 
-	int dev = open_telescope("/dev/ttyUSB0");
+	int dev = open_telescope("/dev/cu.usbserial");
 	printf("dev = %d\n", dev);
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
 
-	int mountno= tc_get_model(dev);
-	get_model_name(mountno,nex,100);
-	printf("Mount id=%d name=%s\n", mountno, nex);
+//	int mountno= tc_get_model(dev);
+//	get_model_name(mountno,nex,100);
+//	printf("Mount id=%d name=%s\n", mountno, nex);
 
 	/*
 	unsigned char i, echo;
@@ -38,14 +38,14 @@ int main(int argc, char *argv[]) {
 	
 	//printf("XXX %d\n",tc_set_location(dev, +123.999, 79.9999));
 	
-	int r= tc_get_location(dev, &lon, &lat);
+//	int r= tc_get_location(dev, &lon, &lat);
 	
-	printf("lon = %f, lat = %f, res = %d\n", lon, lat, r);
+//	printf("lon = %f, lat = %f, res = %d\n", lon, lat, r);
 
 
-	//time_t tm;
-	//time(&tm);
-	//printf("TTT %d\n",tc_set_time(dev, tm, +2, 1));
+	time_t tm;
+	time(&tm);
+	printf("TTT %d\n",tc_set_time(dev, tm-1728600, 2, 0));
 
 /*	
 	printf("%s %s\n",argv[1], argv[2]);
@@ -54,8 +54,8 @@ int main(int argc, char *argv[]) {
 	a2dd(&de, argv[2]);
 */
 
-	int res = tc_get_rade_p(dev, &ra, &de);
-	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
+//	int res = tc_get_rade_p(dev, &ra, &de);
+//	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
 		
 /*	idd2nex(ra,de, nex);
 	printf("%s\n",nex);
@@ -69,8 +69,8 @@ int main(int argc, char *argv[]) {
 	pnex2dd(nex, &d1, &d2);
 	printf("%f, %f\n",d1,d2);
 */	
-	printf("%s ****",dd2a(lon,0));
-	printf(" %s \n",dd2a(lat,0));
+//	printf("%s ****",dd2a(lon,0));
+//	printf(" %s \n",dd2a(lat,0));
 
 	time_t ttime;
 	int tz;
@@ -114,12 +114,12 @@ int main(int argc, char *argv[]) {
 	
 	int move = tc_slew_variable(dev, TC_AXIS_RA, TC_DIR_POSITIVE, 15*60.0 );
 	printf("Moving RA+ 7 = %d\n", move);
-	
+*/	
 	unsigned char major;
 	unsigned char minor;
-	tc_get_version(dev, &major, &minor);
-	printf("Version %d.%d\n", major,minor);
-	
+	tc_get_version(dev,(char*) &major,(char*) &minor);
+	printf("Version %d.%d\n", major, minor);
+/*	
 	sleep(5);
 //	move = tc_slew_fixed(dev, TC_AXIS_DE, TC_DIR_POSITIVE, 7);
 //	printf("Moving DE- 6 = %d\n", move);
