@@ -172,7 +172,7 @@ Set the telescope time (in unix time as given by time() syscall), timezone (as G
 .B tz
 and
 .B dst. 
-On success 0 is returned or -1 on error.
+On success 0 is returned or -1 on error. If the mount is known to have RTC (currently only CGE and AdvancedVX) the date/time is set to RTC too. 
 .TP
 .B int tc_slew_fixed(int dev, char axis, char direction, char rate);
 Start/stop slew around axis TC_AXIS_RA, TC_AXIS_AZM, TC_AXIS_DE or TC_AXIS_ALT 

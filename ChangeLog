@@ -1,3 +1,6 @@
+Tue Dec  3 11:33:19 2013
+	- tc_set_time() sets date/time to RTC too, if available
+	- updated libnexstar.man
 Sun Nov  3 12:58:20 2013 - 0.1-a5
 	- fix ID of Advanced VX
 Fri Oct 25 14:56:41 2013 - 0.1-a4

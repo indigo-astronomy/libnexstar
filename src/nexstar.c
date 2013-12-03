@@ -74,7 +74,6 @@ int read_telescope(int devfd, unsigned char *reply, int len) {
 /*****************************************************
  Telescope commands
  *****************************************************/
-
 int _tc_get_rade(int dev, double *ra, double *de, char precise) {
 	char reply[18];
 
@@ -401,6 +400,7 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	unsigned char cmd[9];
 	struct tm tms;
 	char res;
+	int model;
 
 	if (tz < 0) tz += 256;
 
@@ -425,6 +425,55 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
 
 	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+	model = tc_get_model(dev);
+	if (model <= 0) return model;
+
+	/* If the mount has RTC set date/time to RTC too */
+	/* I only know CGE(5) and AdvancedVX(20) to have RTC */
+	if ((model = 5) || (model = 20)) {
+		/* set year */
+		cmd[0] = 'P';
+		cmd[1] = 3;
+		cmd[2] = 178;
+		cmd[3] = 132;
+		cmd[4] = (unsigned char)((tms.tm_year + 1900) / 256);
+		cmd[5] = (unsigned char)((tms.tm_year + 1900) % 256);
+		cmd[6] = 0;
+		cmd[7] = 0;
+
+		if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+		if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+		/* set month and day */
+		cmd[0] = 'P';
+		cmd[1] = 3;
+		cmd[2] = 178;
+		cmd[3] = 131;
+		cmd[4] = (unsigned char)(tms.tm_mon + 1);
+		cmd[5] = (unsigned char)tms.tm_mday;
+		cmd[6] = 0;
+		cmd[7] = 0;
+
+		if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+		if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+
+		/* set time */
+		cmd[0] = 'P';
+		cmd[1] = 4;
+		cmd[2] = 178;
+		cmd[3] = 179;
+		cmd[4] = (unsigned char)tms.tm_hour;
+		cmd[5] = (unsigned char)tms.tm_min;
+		cmd[6] = (unsigned char)tms.tm_sec;
+		cmd[7] = 0;
+
+		if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+
+		if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+	}
 
 	return 0;
 }
