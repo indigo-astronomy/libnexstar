@@ -1,3 +1,7 @@
+Wed Dec  4 01:22:46 2013
+	- read_telescope(): unsigned char -> char
+	- fixed some warnings on MacOSX
+	- tc_set_time() fix since RTC time expects UT
 Tue Dec  3 11:33:19 2013
 	- tc_set_time() sets date/time to RTC too, if available
 	- updated libnexstar.man

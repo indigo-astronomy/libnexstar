@@ -24,7 +24,7 @@ On success it returns a file descriptor of the device, on error -1 is returned.
 .B int close_telescope(int dev_fd);
 This function closes the serial port device. It returns the same values as close() syscall.
 .TP
-.B int read_telescope(int dev_fd, unsigned char *reply, int len);
+.B int read_telescope(int dev_fd, char *reply, int len);
 Reads
 .B len
 bytes from

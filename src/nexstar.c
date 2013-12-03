@@ -53,7 +53,7 @@ int open_telescope(char *dev_file) {
 	return dev_fd;
 }
 
-int read_telescope(int devfd, unsigned char *reply, int len) {
+int read_telescope(int devfd, char *reply, int len) {
 	char c;
 	int res;
 	int count=0;
@@ -239,7 +239,7 @@ int tc_get_version(int dev, char *major, char *minor) {
 
 	*major = reply[0];
 	*minor = reply[1];
-	return reply[0] << 8 + reply[1];
+	return (reply[0] << 8) + reply[1];
 }
 
 int tc_get_tracking_mode(int dev) {
@@ -329,7 +329,7 @@ int tc_get_location(int dev, double *lon, double *lat) {
 
 	if (write_telescope(dev, "w", 1) < 1) return -1;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, (char *)reply, sizeof reply) < 0) return -1;
 
 	*lat = (double)reply[0] + reply[1]/60.0 + reply[2]/3600.0;
 	*lon = (double)reply[4] + reply[5]/60.0 + reply[6]/3600.0;
@@ -348,7 +348,7 @@ int tc_set_location(int dev, double lon, double lat) {
 	unsigned char deg, min, sec, sign;
 
 	cmd[0] = 'W';
-	dd2dms(lat, &deg, &min, &sec, &sign);
+	dd2dms(lat, &deg, &min, &sec, (char *)&sign);
 	if (deg > 90) {
 		return -2;
 	}
@@ -357,7 +357,7 @@ int tc_set_location(int dev, double lon, double lat) {
 	cmd[3] = sec;
 	cmd[4] = sign;
 
-	dd2dms(lon, &deg, &min, &sec, &sign);
+	dd2dms(lon, &deg, &min, &sec, (char *)&sign);
 	if (deg > 180) {
 		return -2;
 	}
@@ -401,7 +401,10 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	struct tm tms;
 	char res;
 	int model;
+	int timezone;
+	time_t utime;
 
+	timezone = tz;
 	if (tz < 0) tz += 256;
 
 	if (dst) dst = 1;
@@ -432,6 +435,10 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	/* If the mount has RTC set date/time to RTC too */
 	/* I only know CGE(5) and AdvancedVX(20) to have RTC */
 	if ((model = 5) || (model = 20)) {
+		/* calculate UT from localtime */
+		utime = ttime - ((timezone + dst) * 3600);
+		localtime_r(&utime, &tms);
+
 		/* set year */
 		cmd[0] = 'P';
 		cmd[1] = 3;

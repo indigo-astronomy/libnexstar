@@ -43,7 +43,7 @@ extern "C" {
 int open_telescope(char *dev_file);
 #define close_telescope(dev_fd) (close(dev_fd))
 #define write_telescope(dev_fd, buf, size) (write(dev_fd, buf, size))
-int read_telescope(int devfd, unsigned char *reply, int len);
+int read_telescope(int devfd, char *reply, int len);
 
 /* Telescope commands */
 int tc_check_align(int dev);
