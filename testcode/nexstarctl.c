@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
 	time_t tm;
 	time(&tm);
-	printf("TTT %d\n",tc_set_time(dev, tm-1728600, 2, 0));
+	printf("TTT %d\n",tc_set_time(dev, tm-10086000, 2, 0));
 
 /*	
 	printf("%s %s\n",argv[1], argv[2]);

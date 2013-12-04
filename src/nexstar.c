@@ -387,7 +387,13 @@ time_t tc_get_time(int dev, time_t *ttime, int *tz, int *dst) {
 	tms.tm_mon = reply[3] - 1;
 	tms.tm_mday = reply[4];
 	tms.tm_year = 100 + reply[5];
-	tms.tm_isdst = reply[7];
+	/* tms.tm_isdst = reply[7]; */
+	/* set tm_isdst to -1 and leave mktime to set it,
+	   but we use the one returned by the telescope
+	   this way we avoid 1 hour error if dst is
+	   not set correctly on the telescope.
+	*/
+	tms.tm_isdst = -1;
 	*tz = (int)reply[6];
 	if (*tz > 12) *tz -= 256;
 	*dst = reply[7];
