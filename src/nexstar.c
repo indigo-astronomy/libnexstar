@@ -547,8 +547,8 @@ int pnex2dd(char *nex, double *d1, double *d2){
 	d2_factor = d2_x / (double)0xffffffff;
 	*d1 = 360 * d1_factor; 
 	*d2 = 360 * d2_factor;
-	if (*d2 < -90.0) *d2 += 360;
-	if (*d2 > 90.0000001) *d2 -= 360;
+	if (*d2 < -90.0001) *d2 += 360;
+	if (*d2 > 90.0001) *d2 -= 360;
 
 	return 0;
 }
@@ -564,8 +564,8 @@ int nex2dd(char *nex, double *d1, double *d2){
 	d2_factor = d2_x / 65536.0;
 	*d1 = 360 * d1_factor; 
 	*d2 = 360 * d2_factor;
-	if (*d2 < -90.0) *d2 += 360;
-	if (*d2 > 90.0000001) *d2 -= 360;
+	if (*d2 < -90.0001) *d2 += 360;
+	if (*d2 > 90.0001) *d2 -= 360;
 
 	return 0;
 }
