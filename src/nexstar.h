@@ -29,6 +29,11 @@
 #define _TC_AXIS_RA_AZM 16
 #define _TC_AXIS_DE_ALT 17
 
+/* return codes */
+#define RC_OK 0			/* success */
+#define RC_FAILED (-1)	/* general error */
+#define RC_PARAMS (-2)	/* invalid parameters */
+
 #define DEG2RAD (3.1415926535897932384626433832795/180.0)
 #define RAD2DEG (180.0/3.1415926535897932384626433832795)
 
@@ -85,6 +90,16 @@ int tc_slew_fixed(int dev, char axis, char direction, char rate);
 int tc_slew_variable(int dev, char axis, char direction, float rate);
 
 char *get_model_name(int id, char *name, int len);
+
+/* Reverse engineered commands */
+int tc_get_guide_rate();
+int tc_set_guide_rate_fixed();
+int tc_set_guide_rate();
+int tc_get_autoguide_rate(int dev, char axis);
+int tc_set_autoguide_rate(int dev, char axis, char rate);
+int tc_get_backlash(int dev, char axis, char direction);
+int tc_set_backlash(int dev, char axis, char direction, char backlash);
+/* End of reverse engineered commands */
 
 /* nextar turns <=> degrees conversion */
 int pnex2dd(char *nex, double *d1, double *d2);

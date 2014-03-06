@@ -1,3 +1,7 @@
+Thu Mar  6 18:22:21 2014 - Untested
+	- add named function return codes rather than numbers
+	- implemented, but not tested tc_get_autoguide_rate(),
+	  tc_set_autoguide_rate(), tc_get_backlash(), tc_set_backlash().
 Wed Dec  4 23:37:29 2013 - 0.07
 	- change version number to more reasonable notation
 	- fix tc_get_time() one hour offset if DST/ST is incorrect

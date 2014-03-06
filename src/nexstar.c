@@ -23,13 +23,13 @@ int open_telescope(char *dev_file) {
 	struct termios options;
 
 	if ((dev_fd = open(dev_file, O_RDWR | O_NOCTTY | O_SYNC))==-1) {
-		return -1;
+		return RC_FAILED;
 	}
 
 	memset(&options, 0, sizeof options);
 	if (tcgetattr(dev_fd, &options) != 0) {
 		close(dev_fd);
-		return -1;
+		return RC_FAILED;
 	}
 
 	cfsetispeed(&options,B9600);
@@ -47,7 +47,7 @@ int open_telescope(char *dev_file) {
 
 	if (tcsetattr(dev_fd,TCSANOW, &options) != 0) {
 		close(dev_fd);
-		return -1;
+		return RC_FAILED;
 	}
 
 	return dev_fd;
@@ -64,11 +64,11 @@ int read_telescope(int devfd, char *reply, int len) {
 			count++;
 			//printf("R: %d, C:%d\n", reply[count-1], count);
 		} else {
-			return -1;
+			return RC_FAILED;
 		}
 	}
 	if (c == '#') return count;
-	return -1;
+	return RC_FAILED;
 }
 
 /*****************************************************
@@ -78,108 +78,108 @@ int _tc_get_rade(int dev, double *ra, double *de, char precise) {
 	char reply[18];
 
 	if (precise) {
-		if (write_telescope(dev, "e", 1) < 1) return -1;
+		if (write_telescope(dev, "e", 1) < 1) return RC_FAILED;
 	} else {
-		if (write_telescope(dev, "E", 1) < 1) return -1;
+		if (write_telescope(dev, "E", 1) < 1) return RC_FAILED;
 	}
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	if (precise) pnex2dd(reply, ra, de);
 	else nex2dd(reply, ra, de);
 
-	return 0;
+	return RC_OK;
 }
 
 int _tc_get_azalt(int dev, double *az, double *alt, char precise) {
 	char reply[18];
 
 	if (precise) {
-		if (write_telescope(dev, "z", 1) < 1) return -1;
+		if (write_telescope(dev, "z", 1) < 1) return RC_FAILED;
 	} else {
-		if (write_telescope(dev, "Z", 1) < 1) return -1;
+		if (write_telescope(dev, "Z", 1) < 1) return RC_FAILED;
 	}
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	if (precise) pnex2dd(reply, az, alt);
 	else nex2dd(reply, az, alt);
 
-	return 0;
+	return RC_OK;
 }
 
 int _tc_goto_rade(int dev, double ra, double de, char precise) {
 	char nex[18];
 	char reply;
 
-	if ((ra < 0) || (ra > 360)) return -2;
-	if ((de < -90) || (de > 90)) return -2;
+	if ((ra < 0) || (ra > 360)) return RC_PARAMS;
+	if ((de < -90) || (de > 90)) return RC_PARAMS;
 
 	if (precise) {
 		nex[0]='r';
 		dd2pnex(ra, de, nex+1);
-		if (write_telescope(dev, nex, 18) < 1) return -1;
+		if (write_telescope(dev, nex, 18) < 1) return RC_FAILED;
 	} else {
 		nex[0]='R';
 		dd2nex(ra, de, nex+1);
-		if (write_telescope(dev, nex, 10) < 1) return -1;
+		if (write_telescope(dev, nex, 10) < 1) return RC_FAILED;
 	}
 
-	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, &reply, sizeof reply) < 0) return RC_FAILED;
 
-	return 0;
+	return RC_OK;
 }
 
 int _tc_goto_azalt(int dev, double az, double alt, char precise) {
 	char nex[18];
 	char reply;
 
-	if ((az < 0) || (az > 360)) return -2;
-	if ((alt < -90) || (alt > 90)) return -2;
+	if ((az < 0) || (az > 360)) return RC_PARAMS;
+	if ((alt < -90) || (alt > 90)) return RC_PARAMS;
 
 	if (precise) {
 		nex[0]='b';
 		dd2pnex(az, alt, nex+1);
-		if (write_telescope(dev, nex, 18) < 1) return -1;
+		if (write_telescope(dev, nex, 18) < 1) return RC_FAILED;
 	} else {
 		nex[0]='B';
 		dd2nex(az, alt, nex+1);
-		if (write_telescope(dev, nex, 10) < 1) return -1;
+		if (write_telescope(dev, nex, 10) < 1) return RC_FAILED;
 	}
 
-	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, &reply, sizeof reply) < 0) return RC_FAILED;
 
-	return 0;
+	return RC_OK;
 }
 
 int _tc_sync_rade(int dev, double ra, double de, char precise) {
 	char nex[18];
 	char reply;
 
-	if ((ra < 0) || (ra > 360)) return -2;
-	if ((de < -90) || (de > 90)) return -2;
+	if ((ra < 0) || (ra > 360)) return RC_PARAMS;
+	if ((de < -90) || (de > 90)) return RC_PARAMS;
 
 	if (precise) {
 		nex[0]='s';
 		dd2pnex(ra, de, nex+1);
-		if (write_telescope(dev, nex, 18) < 1) return -1;
+		if (write_telescope(dev, nex, 18) < 1) return RC_FAILED;
 	} else {
 		nex[0]='S';
 		dd2nex(ra, de, nex+1);
-		if (write_telescope(dev, nex, 10) < 1) return -1;
+		if (write_telescope(dev, nex, 10) < 1) return RC_FAILED;
 	}
 
-	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, &reply, sizeof reply) < 0) return RC_FAILED;
 
-	return 0;
+	return RC_OK;
 }
 
 int tc_check_align(int dev) {
 	char reply[2];
 
-	if (write_telescope(dev, "J", 1) < 1) return -1;
+	if (write_telescope(dev, "J", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	return reply[0];
 }
@@ -187,25 +187,25 @@ int tc_check_align(int dev) {
 int tc_goto_in_progress(int dev) {
 	char reply[2];
 
-	if (write_telescope(dev, "L", 1) < 1) return -1;
+	if (write_telescope(dev, "L", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	if (reply[0]=='1') return 1;
 	if (reply[0]=='0') return 0;
 
-	return -1;
+	return RC_FAILED;
 } 
 
 int tc_goto_cancel(int dev) {
 	char reply;
-	if (write_telescope(dev, "M", 1) < 1) return -1;
+	if (write_telescope(dev, "M", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, &reply, sizeof reply) < 0) return RC_FAILED;
 
-	if (reply=='#') return 0;
+	if (reply=='#') return RC_OK;
 
-	return -1;
+	return RC_FAILED;
 } 
 
 int tc_echo(int dev, char ch) {
@@ -213,9 +213,9 @@ int tc_echo(int dev, char ch) {
 
 	buf[0] = 'K';
 	buf[1] = ch;
-	if (write_telescope(dev, buf, sizeof buf) < 1) return -1;
+	if (write_telescope(dev, buf, sizeof buf) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, buf, sizeof buf) < 0) return -1;
+	if (read_telescope(dev, buf, sizeof buf) < 0) return RC_FAILED;
 
 	return buf[0];
 }
@@ -223,9 +223,9 @@ int tc_echo(int dev, char ch) {
 int tc_get_model(int dev) {
 	char reply[2];
 
-	if (write_telescope(dev, "m", 1) < 1) return -1;
+	if (write_telescope(dev, "m", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	return reply[0];
 }
@@ -233,9 +233,9 @@ int tc_get_model(int dev) {
 int tc_get_version(int dev, char *major, char *minor) {
 	char reply[3];
 
-	if (write_telescope(dev, "V", 1) < 1) return -1;
+	if (write_telescope(dev, "V", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	*major = reply[0];
 	*minor = reply[1];
@@ -245,9 +245,9 @@ int tc_get_version(int dev, char *major, char *minor) {
 int tc_get_tracking_mode(int dev) {
 	char reply[2];
 
-	if (write_telescope(dev, "t", 1) < 1) return -1;
+	if (write_telescope(dev, "t", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	return reply[0];
 }
@@ -255,16 +255,16 @@ int tc_get_tracking_mode(int dev) {
 int tc_set_tracking_mode(int dev, char mode) {
 	char cmd[2];
 	char res;
-	if ((mode < 0) || (mode > 3)) return -1;
+	if ((mode < 0) || (mode > 3)) return RC_FAILED;
 
 	cmd[0] = 'T';
 	cmd[1] = mode;
 
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 
-	return 0;
+	return RC_OK;
 }
 
 int tc_slew_fixed(int dev, char axis, char direction, char rate) {
@@ -280,18 +280,18 @@ int tc_slew_fixed(int dev, char axis, char direction, char rate) {
 	if (direction > 0) cmd[3] = _TC_DIR_POSITIVE + 30;
 	else cmd[3] = _TC_DIR_NEGATIVE + 30;
 
-	if ((rate < 0) || (rate > 9)) return -1;
+	if ((rate < 0) || (rate > 9)) return RC_PARAMS;
 
 	cmd[4] = rate;
 	cmd[5] = 0;
 	cmd[6] = 0;
 	cmd[7] = 0;
 
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 
-	return 0;
+	return RC_OK;
 }
 
 int tc_slew_variable(int dev, char axis, char direction, float rate) {
@@ -317,19 +317,19 @@ int tc_slew_variable(int dev, char axis, char direction, float rate) {
 	cmd[6] = 0;
 	cmd[7] = 0;
 
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 
-	return 0;
+	return RC_OK;
 }
 
 int tc_get_location(int dev, double *lon, double *lat) {
 	unsigned char reply[9];
 
-	if (write_telescope(dev, "w", 1) < 1) return -1;
+	if (write_telescope(dev, "w", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, (char *)reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, (char *)reply, sizeof reply) < 0) return RC_FAILED;
 
 	*lat = (double)reply[0] + reply[1]/60.0 + reply[2]/3600.0;
 	*lon = (double)reply[4] + reply[5]/60.0 + reply[6]/3600.0;
@@ -339,7 +339,7 @@ int tc_get_location(int dev, double *lon, double *lat) {
 	if (reply[7]) {
 		*lon *= -1;
 	}
-	return 0;
+	return RC_OK;
 }
 
 int tc_set_location(int dev, double lon, double lat) {
@@ -350,7 +350,7 @@ int tc_set_location(int dev, double lon, double lat) {
 	cmd[0] = 'W';
 	dd2dms(lat, &deg, &min, &sec, (char *)&sign);
 	if (deg > 90) {
-		return -2;
+		return RC_PARAMS;
 	}
 	cmd[1] = deg;
 	cmd[2] = min;
@@ -359,27 +359,27 @@ int tc_set_location(int dev, double lon, double lat) {
 
 	dd2dms(lon, &deg, &min, &sec, (char *)&sign);
 	if (deg > 180) {
-		return -2;
+		return RC_PARAMS;
 	}
 	cmd[5] = deg;
 	cmd[6] = min;
 	cmd[7] = sec;
 	cmd[8] = sign;
 
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 
-	return 0;
+	return RC_OK;
 }
 
 time_t tc_get_time(int dev, time_t *ttime, int *tz, int *dst) {
 	char reply[9];
 	struct tm tms;
 
-	if (write_telescope(dev, "h", 1) < 1) return -1;
+	if (write_telescope(dev, "h", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return -1;
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
 	tms.tm_hour = reply[0];
 	tms.tm_min = reply[1];
@@ -431,9 +431,9 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	cmd[7] = (unsigned char)tz;
 	cmd[8] = (unsigned char)dst;
 
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 
 	model = tc_get_model(dev);
 	if (model <= 0) return model;
@@ -455,9 +455,9 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 		cmd[6] = 0;
 		cmd[7] = 0;
 
-		if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+		if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-		if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+		if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 
 		/* set month and day */
 		cmd[0] = 'P';
@@ -469,9 +469,9 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 		cmd[6] = 0;
 		cmd[7] = 0;
 
-		if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+		if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-		if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+		if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 
 		/* set time */
 		cmd[0] = 'P';
@@ -483,12 +483,12 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 		cmd[6] = (unsigned char)tms.tm_sec;
 		cmd[7] = 0;
 
-		if (write_telescope(dev, cmd, sizeof cmd) < 1) return -1;
+		if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-		if (read_telescope(dev, &res, sizeof res) < 0) return -1;
+		if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
 	}
 
-	return 0;
+	return RC_OK;
 }
 
 char *get_model_name(int id, char *name, int len) {
@@ -533,6 +533,131 @@ char *get_model_name(int id, char *name, int len) {
 	return NULL;
 }
 
+/******************************************************************
+ The following commands are not officially documented by Celestron.
+ They are reverse engineered, more information can be found here:
+ http://www.paquettefamily.ca/nexstar/NexStar_AUX_Commands_10.pdf
+ ******************************************************************/
+int tc_get_guide_rate() {
+	return RC_PARAMS;
+}
+int tc_set_guide_rate_fixed() {
+	return RC_PARAMS;
+}
+int tc_set_guide_rate() {
+	return RC_PARAMS;
+}
+
+int tc_get_autoguide_rate(int dev, char axis) {
+	char cmd[8];
+	char res;
+
+	cmd[0] = 'P';
+	cmd[1] = 2;
+
+	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
+	else cmd[2] = _TC_AXIS_DE_ALT;
+
+	cmd[3] = 0x47; /* Get autoguide rate */
+	cmd[4] = 0;
+	cmd[5] = 0;
+	cmd[6] = 0;
+	cmd[7] = 1;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+
+	unsigned char rate = (unsigned char)(100 * (unsigned char)res / 256);
+
+	return rate;
+}
+
+int tc_set_autoguide_rate(int dev, char axis, char rate) {
+	char cmd[8];
+	char res;
+
+	cmd[0] = 'P';
+	cmd[1] = 2;
+
+	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
+	else cmd[2] = _TC_AXIS_DE_ALT;
+
+	cmd[3] = 0x46;  /* Set autoguide rate */
+
+	/* rate should be [1%-100%] */
+	if ((rate < 1) || (rate > 100)) return RC_PARAMS;
+
+	unsigned char rrate = (unsigned char)(256 * rate / 100);
+	printf("rate = %d, rrate = %d\n", rate, rrate);
+
+	cmd[4] = rrate;
+	cmd[5] = 0;
+	cmd[6] = 0;
+	cmd[7] = 0;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+
+	return RC_OK;
+}
+
+int tc_get_backlash(int dev, char axis, char direction) {
+	char cmd[8];
+	char res;
+
+	cmd[0] = 'P';
+	cmd[1] = 2;
+
+	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
+	else cmd[2] = _TC_AXIS_DE_ALT;
+
+	if (direction > 0) cmd[3] = 0x40;  /* Get positive backlash */
+	else cmd[3] = 0x41; /* Get negative backlash */
+
+	cmd[4] = 0;
+	cmd[5] = 0;
+	cmd[6] = 0;
+	cmd[7] = 1;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+
+	return (unsigned char) res;
+}
+
+int tc_set_backlash(int dev, char axis, char direction, char backlash) {
+	char cmd[8];
+	char res;
+
+	cmd[0] = 'P';
+	cmd[1] = 3;
+
+	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
+	else cmd[2] = _TC_AXIS_DE_ALT;
+
+	if (direction > 0) cmd[3] = 0x10;  /* Set positive backlash */
+	else cmd[3] = 0x11; /* Set negative backlash */
+
+	/* backlash should be [0-99] */
+	if ((backlash < 0) || (backlash > 99)) return RC_PARAMS;
+
+	printf("backlash = %d\n", backlash);
+
+	cmd[4] = backlash;
+	cmd[5] = 0;
+	cmd[6] = 0;
+	cmd[7] = 0;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
+
+	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+
+	return RC_OK;
+}
+
 /******************************************
  conversion:	nexstar <-> decimal degrees
  ******************************************/
@@ -550,7 +675,7 @@ int pnex2dd(char *nex, double *d1, double *d2){
 	if (*d2 < -90.0001) *d2 += 360;
 	if (*d2 > 90.0001) *d2 -= 360;
 
-	return 0;
+	return RC_OK;
 }
 
 int nex2dd(char *nex, double *d1, double *d2){
@@ -567,7 +692,7 @@ int nex2dd(char *nex, double *d1, double *d2){
 	if (*d2 < -90.0001) *d2 += 360;
 	if (*d2 > 90.0001) *d2 -= 360;
 
-	return 0;
+	return RC_OK;
 }
 
 int dd2nex(double d1, double d2, char *nex) {
@@ -586,7 +711,7 @@ int dd2nex(double d1, double d2, char *nex) {
 	unsigned short int nex2 = (unsigned short int)(d2_factor*65536);
 
 	sprintf(nex, "%04X,%04X", nex1, nex2);
-	return 0;
+	return RC_OK;
 }
 
 int dd2pnex(double d1, double d2, char *nex) {
@@ -605,5 +730,5 @@ int dd2pnex(double d1, double d2, char *nex) {
 	unsigned int nex2 = (unsigned)(d2_factor*(0xffffffff));
 
 	sprintf(nex, "%08X,%08X", nex1, nex2);
-	return 0;
+	return RC_OK;
 }
