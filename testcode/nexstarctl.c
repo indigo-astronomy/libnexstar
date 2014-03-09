@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
 	time_t tm;
 	time(&tm);
-	printf("TTT %d\n",tc_set_time(dev, tm-10086000, 2, 0));
+	printf("TTT %d\n",tc_set_time(dev, tm, 2, 0));
 
 /*	
 	printf("%s %s\n",argv[1], argv[2]);
@@ -135,5 +135,25 @@ int main(int argc, char *argv[]) {
 	int tmode3 = tc_set_tracking_mode(dev, TC_TRACK_EQ_NORTH);
 	printf("set sacking EQ = %d\n", tmode3);
 */	
+/*
+	printf( "Get RA autoguide rate: %d\n", tc_get_autoguide_rate(dev, TC_AXIS_RA));
+	printf( "Get DE autoguide rate: %d\n", tc_get_autoguide_rate(dev, TC_AXIS_DE));
+
+	printf( "SET RA autoguide rate: %d\n", tc_set_autoguide_rate(dev, TC_AXIS_RA, 50));
+	printf( "SET DE autoguide rate: %d\n", tc_set_autoguide_rate(dev, TC_AXIS_DE, 50));
+
+	printf( "Get RA autoguide rate: %d\n", tc_get_autoguide_rate(dev, TC_AXIS_RA));
+	printf( "Get DE autoguide rate: %d\n", tc_get_autoguide_rate(dev, TC_AXIS_DE));
+*/
+	printf( "Get RA (-) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_RA, TC_DIR_NEGATIVE));
+	printf( "Get RA (+) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_RA, TC_DIR_POSITIVE));
+	printf( "Get DE (-) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_DE, TC_DIR_NEGATIVE));
+	printf( "Get DE (+) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_DE, TC_DIR_POSITIVE));
+
+	printf( "Set RA (-) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_RA, TC_DIR_NEGATIVE, 0));
+	printf( "Set RA (+) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_RA, TC_DIR_POSITIVE, 0));
+	printf( "Set DE (-) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_DE, TC_DIR_NEGATIVE, 0));
+	printf( "Set DE (+) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_DE, TC_DIR_POSITIVE, 0));
+
 	close_telescope(dev);
 }

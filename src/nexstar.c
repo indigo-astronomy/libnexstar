@@ -62,7 +62,7 @@ int read_telescope(int devfd, char *reply, int len) {
 		if (res == 1) {
 			reply[count] = c;
 			count++;
-			//printf("R: %d, C:%d\n", reply[count-1], count);
+			//printf("R: %d, C:%d\n", (unsigned char)reply[count-1], count);
 		} else {
 			return RC_FAILED;
 		}
@@ -550,7 +550,7 @@ int tc_set_guide_rate() {
 
 int tc_get_autoguide_rate(int dev, char axis) {
 	char cmd[8];
-	char res;
+	char res[2];
 
 	cmd[0] = 'P';
 	cmd[1] = 2;
@@ -566,9 +566,10 @@ int tc_get_autoguide_rate(int dev, char axis) {
 
 	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+	if (read_telescope(dev, res, sizeof res) < 0) return RC_FAILED;
 
-	unsigned char rate = (unsigned char)(100 * (unsigned char)res / 256);
+	unsigned char rate = (unsigned char)(100 * (unsigned char)res[0] / 256);
+	//printf("res[0] = %d, rate = %d\n", (unsigned char) res[0], rate);
 
 	return rate;
 }
@@ -576,6 +577,7 @@ int tc_get_autoguide_rate(int dev, char axis) {
 int tc_set_autoguide_rate(int dev, char axis, char rate) {
 	char cmd[8];
 	char res;
+	unsigned char rrate;
 
 	cmd[0] = 'P';
 	cmd[1] = 2;
@@ -585,11 +587,15 @@ int tc_set_autoguide_rate(int dev, char axis, char rate) {
 
 	cmd[3] = 0x46;  /* Set autoguide rate */
 
-	/* rate should be [1%-100%] */
-	if ((rate < 1) || (rate > 100)) return RC_PARAMS;
+	/* rate should be [0%-99%] */
+	if ((rate < 0) || (rate > 99)) return RC_PARAMS;
 
-	unsigned char rrate = (unsigned char)(256 * rate / 100);
-	printf("rate = %d, rrate = %d\n", rate, rrate);
+	/* This is wired, but is done to match as good as
+	   possible the values given by the HC */
+	if (rate == 0) rrate = 0;
+	else if (rate == 99) rrate = 255;
+	else rrate = (unsigned char)(256 * rate / 100) + 1;
+	//printf("rate = %d, rrate = %d\n", rate, rrate);
 
 	cmd[4] = rrate;
 	cmd[5] = 0;
@@ -605,7 +611,7 @@ int tc_set_autoguide_rate(int dev, char axis, char rate) {
 
 int tc_get_backlash(int dev, char axis, char direction) {
 	char cmd[8];
-	char res;
+	char res[2];
 
 	cmd[0] = 'P';
 	cmd[1] = 2;
@@ -623,9 +629,9 @@ int tc_get_backlash(int dev, char axis, char direction) {
 
 	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+	if (read_telescope(dev, res, sizeof res) < 0) return RC_FAILED;
 
-	return (unsigned char) res;
+	return (unsigned char) res[0];
 }
 
 int tc_set_backlash(int dev, char axis, char direction, char backlash) {
@@ -643,8 +649,7 @@ int tc_set_backlash(int dev, char axis, char direction, char backlash) {
 
 	/* backlash should be [0-99] */
 	if ((backlash < 0) || (backlash > 99)) return RC_PARAMS;
-
-	printf("backlash = %d\n", backlash);
+	//printf("backlash = %d\n", backlash);
 
 	cmd[4] = backlash;
 	cmd[5] = 0;
