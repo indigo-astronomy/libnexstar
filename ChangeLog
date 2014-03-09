@@ -1,3 +1,6 @@
+Sun Mar  9 16:29:27 2014 - 0.08
+	- test fix and document tc_get_autoguide_rate(), tc_set_autoguide_rate(),
+	  tc_get_backlash(), tc_set_backlash().
 Thu Mar  6 18:22:21 2014 - Untested
 	- add named function return codes rather than numbers
 	- implemented, but not tested tc_get_autoguide_rate(),

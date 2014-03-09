@@ -92,9 +92,11 @@ int tc_slew_variable(int dev, char axis, char direction, float rate);
 char *get_model_name(int id, char *name, int len);
 
 /* Reverse engineered commands */
+/*
 int tc_get_guide_rate();
 int tc_set_guide_rate_fixed();
 int tc_set_guide_rate();
+*/
 int tc_get_autoguide_rate(int dev, char axis);
 int tc_set_autoguide_rate(int dev, char axis, char rate);
 int tc_get_backlash(int dev, char axis, char direction);

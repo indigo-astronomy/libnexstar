@@ -538,6 +538,7 @@ char *get_model_name(int id, char *name, int len) {
  They are reverse engineered, more information can be found here:
  http://www.paquettefamily.ca/nexstar/NexStar_AUX_Commands_10.pdf
  ******************************************************************/
+/*
 int tc_get_guide_rate() {
 	return RC_PARAMS;
 }
@@ -547,7 +548,7 @@ int tc_set_guide_rate_fixed() {
 int tc_set_guide_rate() {
 	return RC_PARAMS;
 }
-
+*/
 int tc_get_autoguide_rate(int dev, char axis) {
 	char cmd[8];
 	char res[2];

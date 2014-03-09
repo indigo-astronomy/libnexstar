@@ -198,33 +198,45 @@ The function returns
 .B *name
 if the mount is known or NULL in case it is not known.
 
-.SS UNDOCUMENTED COMMANDS
-The following commands are not officially documented by Celestron.
-.TP
-.B int tc_get_guide_rate();
-Unimplemented.
-.TP
-.B int tc_set_guide_rate_fixed();
-Unimplemented.
-.TP
-.B int tc_set_guide_rate();
-Unimplemented.
+.SS AUX COMMANDS
+The following commands are not officially documented by Celestron. Please note tat these
+commands are reverse engineered and may not work exactly as expected.
+.C .TP
+.C .B int tc_get_guide_rate();
+.C Unimplemented.
+.C .TP
+.C .B int tc_set_guide_rate_fixed();
+.C Unimplemented.
+.C .TP
+.C .B int tc_set_guide_rate();
+.C Unimplemented.
 .TP
 .B int tc_get_autoguide_rate(int dev, char axis);
-(TBD)
-.B NOTE: This command is reverse engineered.
+Get autoguide rate setting for axis TC_AXIS_RA, TC_AXIS_AZM, TC_AXIS_DE or TC_AXIS_ALT
+in percents of the sidereal rate. Note that TC_AXIS_RA and TC_AXIS_AZM are different
+names for the same axis and can be used interchangeably. The same applies to TC_AXIS_DE
+and TC_AXIS_ALT. On success the autoguide rate is returned, on error -1.
 .TP
 .B int tc_set_autoguide_rate(int dev, char axis, char rate);
-(TBD)
-.B NOTE: This command is reverse engineered.
+Set autoguide rate setting for axis TC_AXIS_RA, TC_AXIS_AZM, TC_AXIS_DE or TC_AXIS_ALT
+in percents of the sidereal rate in the range [0%-99%]. Note that TC_AXIS_RA and TC_AXIS_AZM
+are different names for the same axis and can be used interchangeably. The same applies to
+TC_AXIS_DE and TC_AXIS_ALT. On success the autoguide rate is returned, on error -1. If rate is
+out of range -2 is returned.
 .TP
 .B int tc_get_backlash(int dev, char axis, char direction);
-(TBD)
-.B NOTE: This command is reverse engineered.
+Get anti-backlash setting for axis TC_AXIS_RA, TC_AXIS_AZM, TC_AXIS_DE or TC_AXIS_ALT
+and direction TC_DIR_POSITIVE or TC_DIR_NEGATIVE. Note that TC_AXIS_RA and TC_AXIS_AZM
+are different names for the same axis and can be used interchangeably. The same applies
+to TC_AXIS_DE and TC_AXIS_ALT. On success the value of the anti-backlash is returned,
+on error -1.
 .TP
 .B int tc_set_backlash(int dev, char axis, char direction, char backlash);
-(TBD)
-.B NOTE: This command is reverse engineered.
+Set anti-backlash value for axis TC_AXIS_RA, TC_AXIS_AZM, TC_AXIS_DE or TC_AXIS_ALT
+and direction TC_DIR_POSITIVE or TC_DIR_NEGATIVE. Note that TC_AXIS_RA and TC_AXIS_AZM
+are different names for the same axis and can be used interchangeably. The same applies
+to TC_AXIS_DE and TC_AXIS_ALT. Backlash should be in rabge [0-99].
+On success 0 is returned, on error -1. If backlash is out of range -2 is returned.
 
 .SS COORDINATE CONVERSION
 .TP
