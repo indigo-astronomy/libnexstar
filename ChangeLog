@@ -1,3 +1,5 @@
+Sun Mar  9 21:10:07 2014 - 0.09
+	- fix data len in tc_set_backlash().
 Sun Mar  9 16:29:27 2014 - 0.08
 	- test fix and document tc_get_autoguide_rate(), tc_set_autoguide_rate(),
 	  tc_get_backlash(), tc_set_backlash().

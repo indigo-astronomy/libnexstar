@@ -640,7 +640,7 @@ int tc_set_backlash(int dev, char axis, char direction, char backlash) {
 	char res;
 
 	cmd[0] = 'P';
-	cmd[1] = 3;
+	cmd[1] = 2;
 
 	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
 	else cmd[2] = _TC_AXIS_DE_ALT;
