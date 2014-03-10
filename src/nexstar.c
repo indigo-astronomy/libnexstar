@@ -708,8 +708,7 @@ int dd2nex(double d1, double d2, char *nex) {
 	if (d2 < 0) {
 		d2 = d2 + 360;
 	}
-	
-	printf("%f *** %f\n" ,d1,d2);
+	//printf("%f *** %f\n" ,d1,d2);
 	
 	double d2_factor = d2 / 360.0;
 	double d1_factor = d1 / 360.0;
@@ -727,8 +726,7 @@ int dd2pnex(double d1, double d2, char *nex) {
 	if (d2 < 0) {
 		d2 = d2 + 360;
 	}
-
-	printf("%f *** %f\n" ,d1,d2);
+	//printf("%f *** %f\n" ,d1,d2);
 	
 	double d2_factor = d2 / 360.0;
 	double d1_factor = d1 / 360.0;
