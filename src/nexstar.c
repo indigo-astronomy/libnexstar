@@ -67,7 +67,17 @@ int read_telescope(int devfd, char *reply, int len) {
 			return RC_FAILED;
 		}
 	}
-	if (c == '#') return count;
+	if (c == '#') {
+		return count;
+	} else {
+		/* if the last byte is not '#', this means that the device did
+		   not respond and the next byte should be '#' (hopefully) */
+		res=read(devfd,&c,1);
+		if ((res == 1) && (c == '#')) {
+			printf("%s(): RC_DEVICE\n",__FUNCTION__);
+			return RC_DEVICE;
+		}
+	}
 	return RC_FAILED;
 }
 

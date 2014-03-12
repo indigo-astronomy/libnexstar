@@ -30,9 +30,10 @@
 #define _TC_AXIS_DE_ALT 17
 
 /* return codes */
-#define RC_OK 0			/* success */
+#define RC_OK 0       	/* success */
 #define RC_FAILED (-1)	/* general error */
 #define RC_PARAMS (-2)	/* invalid parameters */
+#define RC_DEVICE (-3)	/* no responce from the device */
 
 #define DEG2RAD (3.1415926535897932384626433832795/180.0)
 #define RAD2DEG (180.0/3.1415926535897932384626433832795)

@@ -15,10 +15,16 @@ int main(int argc, char *argv[]) {
 //	dd2dms(-22.9998, &deg, &min, &sec, &sign);
 //	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
 
-	int dev = open_telescope("/dev/cu.usbserial");
+	int dev = open_telescope("/dev/ttyUSB0");
 	printf("dev = %d\n", dev);
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
+
+//	// GPS get Date
+//	char res[4];
+//	int result;
+//	result = tc_pass_through_cmd(dev, 1, 176, 1, 0, 0, 0, 3, res);
+//	printf("GPS read date returned: %d\n", result);
 
 //	int mountno= tc_get_model(dev);
 //	get_model_name(mountno,nex,100);
