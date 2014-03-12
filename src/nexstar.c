@@ -74,6 +74,27 @@ int read_telescope(int devfd, char *reply, int len) {
 /*****************************************************
  Telescope commands
  *****************************************************/
+int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id,
+                        char data1, char data2, char data3, char res_len, char *response) {
+	char cmd[8];
+
+	cmd[0] = 'P';
+	cmd[1] = msg_len;
+	cmd[2] = dest_id;
+	cmd[3] = cmd_id;
+	cmd[4] = data1;
+	cmd[5] = data2;
+	cmd[6] = data3;
+	cmd[7] = res_len;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
+
+	/* must read res_len + 1 bytes to accomodate "#" at the end */
+	if (read_telescope(dev, response, res_len + 1) < 0) return RC_FAILED;
+
+	return RC_OK;
+}
+
 int _tc_get_rade(int dev, double *ra, double *de, char precise) {
 	char reply[18];
 
@@ -268,60 +289,34 @@ int tc_set_tracking_mode(int dev, char mode) {
 }
 
 int tc_slew_fixed(int dev, char axis, char direction, char rate) {
-	char cmd[8];
-	char res;
+	char axis_id, cmd_id, res;
 
-	cmd[0] = 'P';
-	cmd[1] = 2;
+	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
+	else axis_id = _TC_AXIS_DE_ALT;
 
-	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
-	else cmd[2] = _TC_AXIS_DE_ALT;
-
-	if (direction > 0) cmd[3] = _TC_DIR_POSITIVE + 30;
-	else cmd[3] = _TC_DIR_NEGATIVE + 30;
+	if (direction > 0) cmd_id = _TC_DIR_POSITIVE + 30;
+	else cmd_id = _TC_DIR_NEGATIVE + 30;
 
 	if ((rate < 0) || (rate > 9)) return RC_PARAMS;
 
-	cmd[4] = rate;
-	cmd[5] = 0;
-	cmd[6] = 0;
-	cmd[7] = 0;
-
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
-
-	return RC_OK;
+	return tc_pass_through_cmd(dev, 2, axis_id, cmd_id, rate, 0, 0, 0, &res);
 }
 
 int tc_slew_variable(int dev, char axis, char direction, float rate) {
-	char cmd[8];
-	char res;
+	char axis_id, cmd_id, res;
 
-	cmd[0] = 'P';
-	cmd[1] = 3;
+	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
+	else axis_id = _TC_AXIS_DE_ALT;
 
-	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
-	else cmd[2] = _TC_AXIS_DE_ALT;
-
-	if (direction > 0) cmd[3] = _TC_DIR_POSITIVE;
-	else cmd[3] = _TC_DIR_NEGATIVE;
+	if (direction > 0) cmd_id = _TC_DIR_POSITIVE;
+	else cmd_id = _TC_DIR_NEGATIVE;
 
 	int16_t irate = (int)(4*rate);
 	unsigned char rateH = (char)(irate / 256);
 	unsigned char rateL = (char)(irate % 256);
 	//printf("rateH = %d, rateL = %d , irate = %d\n", rateH, rateL, irate);
 
-	cmd[4] = rateH;
-	cmd[5] = rateL;
-	cmd[6] = 0;
-	cmd[7] = 0;
-
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
-
-	return RC_OK;
+	return tc_pass_through_cmd(dev, 3, axis_id, cmd_id, rateH, rateL, 0, 0, &res);
 }
 
 int tc_get_location(int dev, double *lon, double *lat) {
@@ -446,48 +441,28 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 		localtime_r(&utime, &tms);
 
 		/* set year */
-		cmd[0] = 'P';
-		cmd[1] = 3;
-		cmd[2] = 178;
-		cmd[3] = 132;
-		cmd[4] = (unsigned char)((tms.tm_year + 1900) / 256);
-		cmd[5] = (unsigned char)((tms.tm_year + 1900) % 256);
-		cmd[6] = 0;
-		cmd[7] = 0;
-
-		if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-		if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
-
+		if (tc_pass_through_cmd(dev, 3, 178, 132,
+		                       (unsigned char)((tms.tm_year + 1900) / 256),
+		                       (unsigned char)((tms.tm_year + 1900) % 256),
+		                       0, 0, &res)) {
+			return RC_FAILED;
+		}
 		/* set month and day */
-		cmd[0] = 'P';
-		cmd[1] = 3;
-		cmd[2] = 178;
-		cmd[3] = 131;
-		cmd[4] = (unsigned char)(tms.tm_mon + 1);
-		cmd[5] = (unsigned char)tms.tm_mday;
-		cmd[6] = 0;
-		cmd[7] = 0;
-
-		if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-		if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
-
+		if (tc_pass_through_cmd(dev, 3, 178, 131,
+		                       (unsigned char)(tms.tm_mon + 1),
+		                       (unsigned char)tms.tm_mday,
+		                       0, 0, &res)) {
+			return RC_FAILED;
+		}
 		/* set time */
-		cmd[0] = 'P';
-		cmd[1] = 4;
-		cmd[2] = 178;
-		cmd[3] = 179;
-		cmd[4] = (unsigned char)tms.tm_hour;
-		cmd[5] = (unsigned char)tms.tm_min;
-		cmd[6] = (unsigned char)tms.tm_sec;
-		cmd[7] = 0;
-
-		if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-		if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+		if (tc_pass_through_cmd(dev, 4, 178, 179,
+		                       (unsigned char)tms.tm_hour,
+		                       (unsigned char)tms.tm_min,
+		                       (unsigned char)tms.tm_sec,
+		                       0, &res)) {
+			return RC_FAILED;
+		}
 	}
-
 	return RC_OK;
 }
 
