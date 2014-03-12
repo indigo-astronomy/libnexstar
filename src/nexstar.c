@@ -537,44 +537,30 @@ int tc_set_guide_rate() {
 	return RC_PARAMS;
 }
 */
+
 int tc_get_autoguide_rate(int dev, char axis) {
-	char cmd[8];
+	char axis_id;
 	char res[2];
 
-	cmd[0] = 'P';
-	cmd[1] = 2;
+	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
+	else axis_id = _TC_AXIS_DE_ALT;
 
-	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
-	else cmd[2] = _TC_AXIS_DE_ALT;
-
-	cmd[3] = 0x47; /* Get autoguide rate */
-	cmd[4] = 0;
-	cmd[5] = 0;
-	cmd[6] = 0;
-	cmd[7] = 1;
-
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-	if (read_telescope(dev, res, sizeof res) < 0) return RC_FAILED;
+	/* Get autoguide rate cmd_id = 0x47 */
+	if (tc_pass_through_cmd(dev, 1, axis_id, 0x47, 0, 0, 0, 1, res) < 0) {
+		return RC_FAILED;
+	}
 
 	unsigned char rate = (unsigned char)(100 * (unsigned char)res[0] / 256);
-	//printf("res[0] = %d, rate = %d\n", (unsigned char) res[0], rate);
-
 	return rate;
 }
 
 int tc_set_autoguide_rate(int dev, char axis, char rate) {
-	char cmd[8];
+	char axis_id;
 	char res;
 	unsigned char rrate;
 
-	cmd[0] = 'P';
-	cmd[1] = 2;
-
-	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
-	else cmd[2] = _TC_AXIS_DE_ALT;
-
-	cmd[3] = 0x46;  /* Set autoguide rate */
+	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
+	else axis_id = _TC_AXIS_DE_ALT;
 
 	/* rate should be [0%-99%] */
 	if ((rate < 0) || (rate > 99)) return RC_PARAMS;
@@ -584,72 +570,41 @@ int tc_set_autoguide_rate(int dev, char axis, char rate) {
 	if (rate == 0) rrate = 0;
 	else if (rate == 99) rrate = 255;
 	else rrate = (unsigned char)(256 * rate / 100) + 1;
-	//printf("rate = %d, rrate = %d\n", rate, rrate);
 
-	cmd[4] = rrate;
-	cmd[5] = 0;
-	cmd[6] = 0;
-	cmd[7] = 0;
-
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
-
-	return RC_OK;
+	/* Set autoguide rate cmd_id = 0x46 */
+	return tc_pass_through_cmd(dev, 2, axis_id, 0x46, rrate, 0, 0, 0, &res);
 }
 
 int tc_get_backlash(int dev, char axis, char direction) {
-	char cmd[8];
+	char axis_id, cmd_id;
 	char res[2];
 
-	cmd[0] = 'P';
-	cmd[1] = 2;
+	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
+	else axis_id = _TC_AXIS_DE_ALT;
 
-	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
-	else cmd[2] = _TC_AXIS_DE_ALT;
+	if (direction > 0) cmd_id = 0x40;  /* Get positive backlash */
+	else cmd_id = 0x41; /* Get negative backlash */
 
-	if (direction > 0) cmd[3] = 0x40;  /* Get positive backlash */
-	else cmd[3] = 0x41; /* Get negative backlash */
-
-	cmd[4] = 0;
-	cmd[5] = 0;
-	cmd[6] = 0;
-	cmd[7] = 1;
-
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-	if (read_telescope(dev, res, sizeof res) < 0) return RC_FAILED;
+	if (tc_pass_through_cmd(dev, 1, axis_id, cmd_id, 0, 0, 0, 1, res) < 0) {
+		return RC_FAILED;
+	}
 
 	return (unsigned char) res[0];
 }
 
 int tc_set_backlash(int dev, char axis, char direction, char backlash) {
-	char cmd[8];
-	char res;
+	char res, axis_id, cmd_id;
 
-	cmd[0] = 'P';
-	cmd[1] = 2;
+	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
+	else axis_id = _TC_AXIS_DE_ALT;
 
-	if (axis > 0) cmd[2] = _TC_AXIS_RA_AZM;
-	else cmd[2] = _TC_AXIS_DE_ALT;
-
-	if (direction > 0) cmd[3] = 0x10;  /* Set positive backlash */
-	else cmd[3] = 0x11; /* Set negative backlash */
+	if (direction > 0) cmd_id = 0x10;  /* Set positive backlash */
+	else cmd_id = 0x11; /* Set negative backlash */
 
 	/* backlash should be [0-99] */
 	if ((backlash < 0) || (backlash > 99)) return RC_PARAMS;
-	//printf("backlash = %d\n", backlash);
 
-	cmd[4] = backlash;
-	cmd[5] = 0;
-	cmd[6] = 0;
-	cmd[7] = 0;
-
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
-
-	return RC_OK;
+	return tc_pass_through_cmd(dev, 2, axis_id, cmd_id, backlash, 0, 0, 0, &res);
 }
 
 /******************************************
