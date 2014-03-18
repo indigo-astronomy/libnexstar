@@ -53,9 +53,6 @@ This call is intended for internal library use.
 
 .SS TELESCOPE CONTROL
 .TP
-.B int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id, char data1, char data2, char data3, char res_len, char *response);
-(TBD)
-.TP
 .B int tc_check_align(int dev);
 If the telescope alignment process is complete 1 is returned. If it is not complete 0 is returned.
 On error -1 is returned.
@@ -240,6 +237,11 @@ and direction TC_DIR_POSITIVE or TC_DIR_NEGATIVE. Note that TC_AXIS_RA and TC_AX
 are different names for the same axis and can be used interchangeably. The same applies
 to TC_AXIS_DE and TC_AXIS_ALT. Backlash should be in rabge [0-99].
 On success 0 is returned, on error -1. If backlash is out of range -2 is returned.
+.TP
+.B int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id, char data1, char data2, char data3, char res_len, char *response);
+Send a pass through command to a specific device. This function is meant for an internal
+library use and should not be used, unless you know exactly what you are doing.
+Calling this function with wrong parameters can be dangerous and can break the telescope!
 
 .SS COORDINATE CONVERSION
 .TP

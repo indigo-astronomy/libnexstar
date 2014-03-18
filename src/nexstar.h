@@ -52,8 +52,6 @@ int open_telescope(char *dev_file);
 int read_telescope(int devfd, char *reply, int len);
 
 /* Telescope commands */
-int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id,
-                        char data1, char data2, char data3, char res_len, char *response);
 int tc_check_align(int dev);
 int tc_goto_in_progress(int dev);
 int tc_goto_cancel(int dev);
@@ -104,6 +102,8 @@ int tc_get_autoguide_rate(int dev, char axis);
 int tc_set_autoguide_rate(int dev, char axis, char rate);
 int tc_get_backlash(int dev, char axis, char direction);
 int tc_set_backlash(int dev, char axis, char direction, char backlash);
+int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id,
+                        char data1, char data2, char data3, char res_len, char *response);
 /* End of reverse engineered commands */
 
 /* nextar turns <=> degrees conversion */

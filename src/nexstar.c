@@ -84,26 +84,6 @@ int read_telescope(int devfd, char *reply, int len) {
 /*****************************************************
  Telescope commands
  *****************************************************/
-int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id,
-                        char data1, char data2, char data3, char res_len, char *response) {
-	char cmd[8];
-
-	cmd[0] = 'P';
-	cmd[1] = msg_len;
-	cmd[2] = dest_id;
-	cmd[3] = cmd_id;
-	cmd[4] = data1;
-	cmd[5] = data2;
-	cmd[6] = data3;
-	cmd[7] = res_len;
-
-	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
-
-	/* must read res_len + 1 bytes to accomodate "#" at the end */
-	if (read_telescope(dev, response, res_len + 1) < 0) return RC_FAILED;
-
-	return RC_OK;
-}
 
 int _tc_get_rade(int dev, double *ra, double *de, char precise) {
 	char reply[18];
@@ -606,6 +586,28 @@ int tc_set_backlash(int dev, char axis, char direction, char backlash) {
 
 	return tc_pass_through_cmd(dev, 2, axis_id, cmd_id, backlash, 0, 0, 0, &res);
 }
+
+int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id,
+                        char data1, char data2, char data3, char res_len, char *response) {
+	char cmd[8];
+
+	cmd[0] = 'P';
+	cmd[1] = msg_len;
+	cmd[2] = dest_id;
+	cmd[3] = cmd_id;
+	cmd[4] = data1;
+	cmd[5] = data2;
+	cmd[6] = data3;
+	cmd[7] = res_len;
+
+	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
+
+	/* must read res_len + 1 bytes to accomodate "#" at the end */
+	if (read_telescope(dev, response, res_len + 1) < 0) return RC_FAILED;
+
+	return RC_OK;
+}
+
 
 /******************************************
  conversion:	nexstar <-> decimal degrees
