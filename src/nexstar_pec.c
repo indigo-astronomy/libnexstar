@@ -3,6 +3,7 @@
 
 	(C)2013-2014 by Rumen G.Bogdanovski
 ***************************************************************/
+#include <math.h>
 #include <nexstar.h>
 #include <nexstar_pec.h>
 
@@ -122,10 +123,78 @@ int _pec_get_data(int dev, unsigned char index) {
 
 
 int pec_set_data(int dev, float *data, int len) {
-	return 0;
+	int pec_len, i, rdiff;
+	float diff, current = 0;
+
+	pec_len = pec_get_data_len(dev);
+	if (pec_len < 0) {
+		return RC_FAILED;
+	}
+
+	if (pec_len != len) {
+		return RC_PARAMS;
+	}
+
+	for( i=0; i<pec_len; i++) {
+		diff = data[i] - current;
+		current = data[i];
+
+		/* I have no idea why the values are different for positive and negative numbers
+		   I thought the coefficient should be 0.0772 arcsec/unit as the resolution of
+		   24bit number for 360 degrees. I tried to mach as best as I could the values
+		   returned by Celestron's PECTool and I came up with this numbers... */
+		if (diff < 0) {
+			rdiff = (int)roundl(diff / 0.0845);
+		} else {
+			rdiff = (int)roundl(diff / 0.0774);
+		}
+
+		if ((rdiff > 127) || (rdiff < -127)) {
+			return RC_DATA;
+		}
+
+		if (_pec_set_data(dev, i, (char)rdiff) < 0) {
+			return RC_FAILED;
+		}
+	}
+
+	if (pec_record(dev, PEC_STOP) < 0) {
+		return RC_FAILED;
+	}
+	return RC_OK;
 }
 
 
 int pec_get_data(int dev, float *data, const int max_len) {
-	return 0;
+	int pec_len, i, diff;
+	float current = 0;
+	char rdata;
+
+	pec_len = pec_get_data_len(dev);
+	if (pec_len < 0) {
+		return RC_FAILED;
+	}
+
+	if (pec_len > max_len) {
+		return RC_PARAMS;
+	}
+
+	for (i = 0; i < pec_len; i++) {
+		diff = _pec_get_data(dev, i);
+		if (diff < 0) {
+			return RC_FAILED;
+		}
+		/* we need thedata as a signed char */
+		rdata = (char)diff;
+
+		/* I have no idea why the values are different for positive and negative numbers.
+		   Pease se the note in pec_set_data()! */
+		if (rdata > 0) {
+			current += rdata * 0.0774;
+		} else {
+			current += rdata * 0.0845;
+		}
+		data[i] = current;
+	}
+	return pec_len;
 }
