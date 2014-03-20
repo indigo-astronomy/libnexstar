@@ -1,5 +1,5 @@
-libnexstar version 0.1
-=======================
+libnexstar
+==========
 
 This library implements the serial commands supported by the Celestron
 NexStar hand control. This applies to the NexStar GPS, NexStar GPS-SA,
@@ -11,8 +11,11 @@ stop bit via the RS-232 port on the base of the hand control.
 
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2013 by Rumen G.Bogdanovski
+Copyright (C) 2013-2014 by Rumen G.Bogdanovski
 
 This library is free software; you can redistribute it and/or modify
 it under the terms of GPL3
 
+The author assumes no liability or responsibility for damage or injury
+to persons or property arising from any use of this product. Use it at
+your own risk.

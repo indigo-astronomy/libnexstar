@@ -3,7 +3,16 @@
 .SH NAME
 C API to control NexStar compatible telescopes
 .SH SYNOPSIS
+
+For basic telescope control:
+.br
 .B #include <nexstar.h>
+
+For periodic error correction commands:
+.br
+.B #include <nexstar.h>
+.br
+.B #include <nexstar_pec.h>
 
 .SH DESCRIPTION
 This library implements the serial commands supported by the Celestron
@@ -199,7 +208,7 @@ The function returns
 if the mount is known or NULL in case it is not known.
 
 .SS AUX COMMANDS
-The following commands are not officially documented by Celestron. Please note tat these
+The following commands are not officially documented by Celestron. Please note that these
 commands are reverse engineered and may not work exactly as expected.
 .C .TP
 .C .B int tc_get_guide_rate();
@@ -242,6 +251,37 @@ On success 0 is returned, on error -1. If backlash is out of range -2 is returne
 Send a pass through command to a specific device. This function is meant for an internal
 library use and should not be used, unless you know exactly what you are doing.
 Calling this function with wrong parameters can be dangerous and can break the telescope!
+
+.SS PERIODIC ERROR CORRECTION COMMANDS
+The following commands are not officially documented by Celestron. Please note that these
+commands are reverse engineered and may not work exactly as expected.
+.TP
+.B int pec_index_found(int dev);
+TBD, returns 0, 1, -1.
+.TP
+.B int pec_seek_index(int dev);
+TBD, returns 0, -1.
+.TP
+.B int pec_record(int dev, char action);
+TBD, action PEC_START, PEC_STOP. returns 0, -1, -2.
+.TP
+.B int pec_record_complete(int dev);
+TBD, returns 0, 1, -1.
+.TP
+.B int pec_playback(int dev, char action);
+TBD, action PEC_START, PEC_STOP. returns 0, -1, -2.
+.TP
+.B int pec_get_playback_index(int dev);
+TBD, returns index, -1.
+.TP
+.B int pec_get_data_len(int dev);
+TBD, returns data length, -1.
+.TP
+.B int pec_set_data(int dev, float *data, int len);
+TBD, data: correction in arc; len => data len; returns 0, -1, -2, -4.
+.TP
+.B int pec_get_data(int dev, float *data, const int max_len);
+TBD,  max_len: size of data array; sets data: correction in arc; returns data_len, -1, -2.
 
 .SS COORDINATE CONVERSION
 .TP
@@ -344,5 +384,10 @@ http://www.paquettefamily.ca/nexstar/NexStar_AUX_Commands_10.pdf
 
 .SH AUTHORS
 Created by Rumen G.Bogdanovski <rumen@skyarchive.org>
+
+The author assumes no liability or responsibility for damage or injury
+to persons or property arising from any use of this product. Use it at
+your own risk.
+
 .SH BUGS
 If you find any, please send bug reports to rumen@skyarchive.org
