@@ -1,6 +1,7 @@
 
 
 #include <nexstar.h>
+#include <nexstar_pec.h>
 #include <stdio.h>
 #include <deg2str.h>
 
@@ -15,7 +16,7 @@ int main(int argc, char *argv[]) {
 //	dd2dms(-22.9998, &deg, &min, &sec, &sign);
 //	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
 
-	int dev = open_telescope("/dev/ttyUSB0");
+	int dev = open_telescope("/dev/cu.usbserial");
 	printf("dev = %d\n", dev);
 	int align = tc_check_align(dev);
 	printf("align = %d\n", align);
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
 //	get_model_name(mountno,nex,100);
 //	printf("Mount id=%d name=%s\n", mountno, nex);
 
-	/*
+/*	
 	unsigned char i, echo;
 	for (i=0; i<255; i++) {
 		echo = (unsigned char) tc_echo(dev, i);
@@ -40,8 +41,7 @@ int main(int argc, char *argv[]) {
 			printf("OK: Sent %d read %d\n", i, echo);
 		}
 	}
-	*/
-	
+*/	
 	//printf("XXX %d\n",tc_set_location(dev, +123.999, 79.9999));
 	
 //	int r= tc_get_location(dev, &lon, &lat);
@@ -49,9 +49,9 @@ int main(int argc, char *argv[]) {
 //	printf("lon = %f, lat = %f, res = %d\n", lon, lat, r);
 
 
-	time_t tm;
-	time(&tm);
-	printf("TTT %d\n",tc_set_time(dev, tm, 2, 0));
+//	time_t tm;
+//	time(&tm);
+//	printf("TTT %d\n",tc_set_time(dev, tm, 2, 0));
 
 /*	
 	printf("%s %s\n",argv[1], argv[2]);
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 	printf( "Get RA autoguide rate: %d\n", tc_get_autoguide_rate(dev, TC_AXIS_RA));
 	printf( "Get DE autoguide rate: %d\n", tc_get_autoguide_rate(dev, TC_AXIS_DE));
 */
-	printf( "Get RA (-) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_RA, TC_DIR_NEGATIVE));
+/*	printf( "Get RA (-) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_RA, TC_DIR_NEGATIVE));
 	printf( "Get RA (+) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_RA, TC_DIR_POSITIVE));
 	printf( "Get DE (-) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_DE, TC_DIR_NEGATIVE));
 	printf( "Get DE (+) backlash: %d\n", tc_get_backlash(dev, TC_AXIS_DE, TC_DIR_POSITIVE));
@@ -160,6 +160,41 @@ int main(int argc, char *argv[]) {
 	printf( "Set RA (+) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_RA, TC_DIR_POSITIVE, 0));
 	printf( "Set DE (-) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_DE, TC_DIR_NEGATIVE, 0));
 	printf( "Set DE (+) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_DE, TC_DIR_POSITIVE, 0));
+*/
 
+	printf( "pec_index_found: %d\n", pec_index_found(dev));
+	printf( "pec_seek_index: %d\n", pec_seek_index(dev));
+	sleep(5);
+	printf( "pec_index_found: %d\n", pec_index_found(dev));
+	
+	printf( "pec_index: %d\n", pec_get_playback_index(dev));
+
+	printf( "pec_resord complete: %d\n", pec_record_complete(dev));
+	printf( "pec_resord start: %d\n", pec_record(dev, PEC_START));
+	sleep(2);
+	printf( "pec_resord complete: %d\n", pec_record_complete(dev));
+        printf( "pec_resord stop: %d\n", pec_record(dev, PEC_STOP));
+	printf( "pec_resord complete: %d\n", pec_record_complete(dev));
+
+	printf( "pec_index: %d\n", pec_get_playback_index(dev));
+
+	printf( "pec_data_len: %d\n", pec_get_data_len(dev));
+/*
+	float data[88];
+	pec_get_data(dev, data, 88);
+	
+	for (int i=0;i<88;i++) {
+		printf("%d => %.4f\n",i, data[i]);
+//		data[i]=0;
+	}
+*/	
+//	data[2] = 1;
+//	data[3] = 5;
+//	data[4] = 3;
+//	data[5] = 0;
+//	data[6] = -8;
+//	data[7] = -6;
+
+//	pec_set_data(dev, data, 88);	
 	close_telescope(dev);
 }
