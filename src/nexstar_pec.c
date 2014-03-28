@@ -137,8 +137,6 @@ int pec_set_data(int dev, float *data, int len) {
 
 	for( i=0; i<pec_len; i++) {
 		diff = data[i] - current;
-		current = data[i];
-
 		/* I have no idea why the values are different for positive and negative numbers
 		   I thought the coefficient should be 0.0772 arcsec/unit as the resolution of
 		   24bit number for 360 degrees. I tried to mach as best as I could the values
@@ -156,6 +154,7 @@ int pec_set_data(int dev, float *data, int len) {
 		if (_pec_set_data(dev, i, (char)rdiff) < 0) {
 			return RC_FAILED;
 		}
+		current = data[i];
 	}
 
 	if (pec_record(dev, PEC_STOP) < 0) {

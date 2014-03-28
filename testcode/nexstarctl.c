@@ -161,7 +161,7 @@ int main(int argc, char *argv[]) {
 	printf( "Set DE (-) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_DE, TC_DIR_NEGATIVE, 0));
 	printf( "Set DE (+) backlash: %d\n", tc_set_backlash(dev, TC_AXIS_DE, TC_DIR_POSITIVE, 0));
 */
-
+/*
 	printf( "pec_index_found: %d\n", pec_index_found(dev));
 	printf( "pec_seek_index: %d\n", pec_seek_index(dev));
 	sleep(5);
@@ -177,9 +177,9 @@ int main(int argc, char *argv[]) {
 	printf( "pec_resord complete: %d\n", pec_record_complete(dev));
 
 	printf( "pec_index: %d\n", pec_get_playback_index(dev));
-
+*/
 	printf( "pec_data_len: %d\n", pec_get_data_len(dev));
-/*
+
 	float data[88];
 	pec_get_data(dev, data, 88);
 	
@@ -187,14 +187,14 @@ int main(int argc, char *argv[]) {
 		printf("%d => %.4f\n",i, data[i]);
 //		data[i]=0;
 	}
-*/	
-//	data[2] = 1;
-//	data[3] = 5;
-//	data[4] = 3;
-//	data[5] = 0;
-//	data[6] = -8;
-//	data[7] = -6;
+	
+	data[2] = 1;
+	data[3] = 5;
+	data[4] = 3;
+	data[5] = 0;
+	data[6] = -8;
+	data[7] = -6;
 
-//	pec_set_data(dev, data, 88);	
+	pec_set_data(dev, data, 88);	
 	close_telescope(dev);
 }
