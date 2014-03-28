@@ -48,7 +48,7 @@ extern "C" {
 
 /* Telescope communication */
 int open_telescope(char *dev_file);
-#define close_telescope(dev_fd) (close(dev_fd))
+int close_telescope(int dev_fd);
 #define write_telescope(dev_fd, buf, size) (write(dev_fd, buf, size))
 int read_telescope(int devfd, char *reply, int len);
 

@@ -53,6 +53,10 @@ int open_telescope(char *dev_file) {
 	return dev_fd;
 }
 
+int close_telescope(int devfd) {
+	return close(devfd);
+}
+
 int read_telescope(int devfd, char *reply, int len) {
 	char c;
 	int res;
