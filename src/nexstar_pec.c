@@ -144,9 +144,9 @@ int pec_set_data(int dev, float *data, int len) {
 		   24bit number for 360 degrees. I tried to mach as best as I could the values
 		   returned by Celestron's PECTool and I came up with this numbers... */
 		if (diff < 0) {
-			rdiff = (int)roundl(diff / 0.0845);
+			rdiff = (int)roundl(data[i] / 0.0845) - (int)roundl(current / 0.0845);
 		} else {
-			rdiff = (int)roundl(diff / 0.0774);
+			rdiff = (int)roundl(data[i] / 0.0774) - (int)roundl(current / 0.0774);
 		}
 
 		if ((rdiff > 127) || (rdiff < -127)) {
