@@ -124,11 +124,11 @@ int _tc_get_azalt(int dev, double *az, double *alt, char precise) {
 }
 
 int _tc_goto_rade(int dev, double ra, double de, char precise) {
-	char nex[18];
+	char nex[30];
 	char reply;
 
-	if ((ra < 0) || (ra > 360)) return RC_PARAMS;
-	if ((de < -90) || (de > 90)) return RC_PARAMS;
+	if ((ra < -0.1) || (ra > 360.1)) return RC_PARAMS;
+	if ((de < -90.1) || (de > 90.1)) return RC_PARAMS;
 
 	if (precise) {
 		nex[0]='r';
@@ -146,11 +146,11 @@ int _tc_goto_rade(int dev, double ra, double de, char precise) {
 }
 
 int _tc_goto_azalt(int dev, double az, double alt, char precise) {
-	char nex[18];
+	char nex[30];
 	char reply;
 
-	if ((az < 0) || (az > 360)) return RC_PARAMS;
-	if ((alt < -90) || (alt > 90)) return RC_PARAMS;
+	if ((az < -0.1) || (az > 360.1)) return RC_PARAMS;
+	if ((alt < -90.1) || (alt > 90.1)) return RC_PARAMS;
 
 	if (precise) {
 		nex[0]='b';

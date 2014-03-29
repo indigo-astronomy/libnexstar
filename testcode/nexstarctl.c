@@ -18,8 +18,8 @@ int main(int argc, char *argv[]) {
 
 	int dev = open_telescope("/dev/cu.usbserial");
 	printf("dev = %d\n", dev);
-	int align = tc_check_align(dev);
-	printf("align = %d\n", align);
+//	int align = tc_check_align(dev);
+//	printf("align = %d\n", align);
 
 //	// GPS get Date
 //	char res[4];
@@ -62,9 +62,13 @@ int main(int argc, char *argv[]) {
 
 //	int res = tc_get_rade_p(dev, &ra, &de);
 //	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
-		
-/*	idd2nex(ra,de, nex);
-	printf("%s\n",nex);
+
+
+for (ra = -1.9999, de = -91.00000001; ra<=361; ra++, de++) { 		
+	dd2pnex(ra,de, nex);
+	printf("%s => R=%f D=%f\n",nex, ra,de);
+}
+/*
 	nex2dd(nex, &d1, &d2);
 	printf("%f, %f\n",d1,d2);
 	
@@ -74,7 +78,7 @@ int main(int argc, char *argv[]) {
 	printf("%s\n",nex);
 	pnex2dd(nex, &d1, &d2);
 	printf("%f, %f\n",d1,d2);
-*/	
+*/
 //	printf("%s ****",dd2a(lon,0));
 //	printf(" %s \n",dd2a(lat,0));
 
@@ -178,7 +182,7 @@ int main(int argc, char *argv[]) {
 
 	printf( "pec_index: %d\n", pec_get_playback_index(dev));
 */
-	printf( "pec_data_len: %d\n", pec_get_data_len(dev));
+/*	printf( "pec_data_len: %d\n", pec_get_data_len(dev));
 
 	float data[88];
 	pec_get_data(dev, data, 88);
@@ -195,6 +199,6 @@ int main(int argc, char *argv[]) {
 	data[6] = -8;
 	data[7] = -6;
 
-	pec_set_data(dev, data, 88);	
+	pec_set_data(dev, data, 88);	*/
 	close_telescope(dev);
 }
