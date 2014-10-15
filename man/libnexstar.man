@@ -22,12 +22,17 @@ Advanced-GT, and CGE mounts.
 
 Communication to the hand control is 9600 bits/sec, no parity and one
 stop bit via the RS-232 port on the base of the hand control.
+
+Communication can be established over TCP/IP if nexbridge is running
+on the computer connected to the telescope.
 .SH CALLS
 
 .SS TELESCOPE COMMUNICATION
 .TP
 .B int open_telescope(char *dev_file);
 Opens serial port to communicate with the telescope and configures it accordingly.
+If the dev_file has "tcp://" prefix the rest of the string is interptered as an IP
+address and port where to connnect to (like "tcp://localhost:9999").
 On success it returns a file descriptor of the device, on error -1 is returned.
 .TP
 .B int close_telescope(int dev_fd);

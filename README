@@ -9,6 +9,10 @@ Advanced-GT, and CGE mounts.
 Communication to the hand control is 9600 bits/sec, no parity and one
 stop bit via the RS-232 port on the base of the hand control.
 
+Communication can be established over TCP/IP if nexbridge is running
+on the computer connected to the telescope.
+
+
 COPYRIGHT AND LICENCE
 
 Copyright (C) 2013-2014 by Rumen G.Bogdanovski
