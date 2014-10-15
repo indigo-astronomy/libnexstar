@@ -34,6 +34,8 @@ Opens serial port to communicate with the telescope and configures it accordingl
 If the dev_file has "tcp://" prefix the rest of the string is interptered as an IP
 address and port where to connnect to (like "tcp://localhost:9999").
 On success it returns a file descriptor of the device, on error -1 is returned.
+
+NOTE: To be used with TCP you need to run nexbridge on the remote computer.
 .TP
 .B int close_telescope(int dev_fd);
 This function closes the serial port device. It returns the same values as close() syscall.
