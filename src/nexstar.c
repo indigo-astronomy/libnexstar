@@ -6,12 +6,11 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include <termios.h>
-#include <fcntl.h>
 #include <string.h>
 
 #include "deg2str.h"
 #include "nexstar.h"
+#include "nex_open.h"
 
 #include <time.h>
 
@@ -19,38 +18,17 @@
  Telescope communication
  *****************************************************/
 int open_telescope(char *dev_file) {
-	int dev_fd;
-	struct termios options;
+	int port;
+	char host[255];
 
-	if ((dev_fd = open(dev_file, O_RDWR | O_NOCTTY | O_SYNC))==-1) {
-		return RC_FAILED;
+	if (parse_devname(dev_file, host, &port)) {
+		/* this is network address */
+		return open_telescope_tcp(host, port);
+	} else {
+		/* should be tty port */
+		return open_telescope_rs(dev_file);
 	}
-
-	memset(&options, 0, sizeof options);
-	if (tcgetattr(dev_fd, &options) != 0) {
-		close(dev_fd);
-		return RC_FAILED;
-	}
-
-	cfsetispeed(&options,B9600);
-	cfsetospeed(&options,B9600);
-	/* Finaly!!!!  Works on Linux & Solaris  */
-	options.c_lflag &= ~(ICANON|ECHO|ECHOE|ISIG|IEXTEN);
-	options.c_oflag &= ~(OPOST);
-	options.c_iflag &= ~(INLCR|ICRNL|IXON|IXOFF|IXANY|IMAXBEL);
-	options.c_cflag &= ~PARENB;
-	options.c_cflag &= ~CSTOPB;
-	options.c_cflag &= ~CSIZE;
-	options.c_cflag |= CS8;
-	options.c_cc[VMIN]  = 0;	// read doesn't block
-	options.c_cc[VTIME] = 50;	// 5 seconds read timeout
-
-	if (tcsetattr(dev_fd,TCSANOW, &options) != 0) {
-		close(dev_fd);
-		return RC_FAILED;
-	}
-
-	return dev_fd;
+	return 0;
 }
 
 int close_telescope(int devfd) {
