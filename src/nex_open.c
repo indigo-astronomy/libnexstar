@@ -97,10 +97,12 @@ int open_telescope_tcp(char *host, int port) {
 	}
 
 	if (setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout)) < 0) {
+		close(sock);
 		return -1;
 	}
 
 	if (setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout)) < 0) {
+		close(sock);
 		return -1;
 	}
 	return sock;
