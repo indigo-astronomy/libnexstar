@@ -9,7 +9,7 @@
 #define TC_TRACK_OFF 0
 #define TC_TRACK_ALT_AZ 1
 #define TC_TRACK_EQ_NORTH 2
-#define TC_REACK_EQ_SOUTH 3
+#define TC_TRACK_EQ_SOUTH 3
 	
 #define TC_DIR_POSITIVE 1
 #define TC_DIR_NEGATIVE 0
