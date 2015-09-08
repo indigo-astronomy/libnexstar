@@ -11,6 +11,8 @@
 int pec_index_found(int dev) {
 	char res[2];
 
+	REQUIRE_VER(VER_AUX);
+
 	if (tc_pass_through_cmd(dev, 1, _TC_AXIS_RA_AZM, 0x18, 0, 0, 0, 1, res) < 0) {
 		return RC_FAILED;
 	}
@@ -23,6 +25,8 @@ int pec_index_found(int dev) {
 int pec_seek_index(int dev) {
 	char res;
 
+	REQUIRE_VER(VER_AUX);
+
 	if (tc_pass_through_cmd(dev, 1, _TC_AXIS_RA_AZM, 0x19, 0, 0, 0, 0, &res) < 0) {
 		return RC_FAILED;
 	}
@@ -33,6 +37,8 @@ int pec_seek_index(int dev) {
 
 int pec_record(int dev, char action) {
 	char res, cmd_id;
+
+	REQUIRE_VER(VER_AUX);
 
 	if (action == PEC_START) {
 		cmd_id = 0x0c;  /* Start PEC record */
@@ -53,6 +59,8 @@ int pec_record(int dev, char action) {
 int pec_record_complete(int dev) {
 	char res[2];
 
+	REQUIRE_VER(VER_AUX);
+
 	if (tc_pass_through_cmd(dev, 1, _TC_AXIS_RA_AZM, 0x15, 0, 0, 0, 1, res) < 0) {
 		return RC_FAILED;
 	}
@@ -64,6 +72,8 @@ int pec_record_complete(int dev) {
 
 int pec_playback(int dev, char action) {
 	char res;
+
+	REQUIRE_VER(VER_AUX);
 
 	if ((action != PEC_START) && (action != PEC_STOP)) {
 		return RC_PARAMS;
@@ -80,6 +90,8 @@ int pec_playback(int dev, char action) {
 int pec_get_playback_index(int dev) {
 	char res[2];
 
+	REQUIRE_VER(VER_AUX);
+
 	if (tc_pass_through_cmd(dev, 1, _TC_AXIS_RA_AZM, 0x0e, 0, 0, 0, 1, res) < 0) {
 		return RC_FAILED;
 	}
@@ -90,6 +102,8 @@ int pec_get_playback_index(int dev) {
 
 int pec_get_data_len(int dev) {
 	char res[2];
+
+	REQUIRE_VER(VER_AUX);
 
 	if (tc_pass_through_cmd(dev, 2, _TC_AXIS_RA_AZM, 0x30, 0x3f, 0, 0, 1, res) < 0) {
 		return RC_FAILED;
@@ -102,6 +116,8 @@ int pec_get_data_len(int dev) {
 int _pec_set_data(int dev, unsigned char index, char data) {
 	char res;
 
+	REQUIRE_VER(VER_AUX);
+
 	if (tc_pass_through_cmd(dev, 4, _TC_AXIS_RA_AZM, 0x31, 0x40+index, data, 0, 0, &res) < 0) {
 		return RC_FAILED;
 	}
@@ -113,6 +129,8 @@ int _pec_set_data(int dev, unsigned char index, char data) {
 /* on success the returned value should be threated as a signed char */
 int _pec_get_data(int dev, unsigned char index) {
 	char res[2];
+
+	REQUIRE_VER(VER_AUX);
 
 	if (tc_pass_through_cmd(dev, 2, _TC_AXIS_RA_AZM, 0x30, 0x40+index, 0, 0, 1, res) < 0) {
 		return RC_FAILED;

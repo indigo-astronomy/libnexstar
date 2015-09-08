@@ -57,6 +57,9 @@ is returned. If less then
 bytes are read or on error -1 is returned.
 This call is intended for internal library use.
 .TP
+.B int enforce_proto_version(int devfd, int ver);
+(TBD) FORCE PROTOCOL VERSION DEFAULT IS ALL.
+.TP
 .B int write_telescope(int dev_fd, char *buf, sizet size);
 Writes
 .B size

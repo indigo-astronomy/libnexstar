@@ -14,6 +14,8 @@
 
 #include <time.h>
 
+int proto_version = VER_AUX;
+
 /*****************************************************
  Telescope communication
  *****************************************************/
@@ -33,6 +35,20 @@ int open_telescope(char *dev_file) {
 
 int close_telescope(int devfd) {
 	return close(devfd);
+}
+
+int enforce_proto_version(int devfd, int ver) {
+	char major,minor;
+	int version;
+	if (ver != VER_AUTO) {
+		proto_version = ver;
+		return RC_OK;
+	}
+
+	version = tc_get_version(devfd, &major, &minor);
+	if (version < 0) return version;
+	proto_version = version;
+	return RC_OK;
 }
 
 int read_telescope(int devfd, char *reply, int len) {
@@ -71,8 +87,10 @@ int _tc_get_rade(int dev, double *ra, double *de, char precise) {
 	char reply[18];
 
 	if (precise) {
+		REQUIRE_VER(VER_1_6);
 		if (write_telescope(dev, "e", 1) < 1) return RC_FAILED;
 	} else {
+		REQUIRE_VER(VER_1_2);
 		if (write_telescope(dev, "E", 1) < 1) return RC_FAILED;
 	}
 
@@ -88,8 +106,10 @@ int _tc_get_azalt(int dev, double *az, double *alt, char precise) {
 	char reply[18];
 
 	if (precise) {
+		REQUIRE_VER(VER_2_2);
 		if (write_telescope(dev, "z", 1) < 1) return RC_FAILED;
 	} else {
+		REQUIRE_VER(VER_1_2);
 		if (write_telescope(dev, "Z", 1) < 1) return RC_FAILED;
 	}
 
@@ -109,10 +129,12 @@ int _tc_goto_rade(int dev, double ra, double de, char precise) {
 	if ((de < -90.1) || (de > 90.1)) return RC_PARAMS;
 
 	if (precise) {
+		REQUIRE_VER(VER_1_6);
 		nex[0]='r';
 		dd2pnex(ra, de, nex+1);
 		if (write_telescope(dev, nex, 18) < 1) return RC_FAILED;
 	} else {
+		REQUIRE_VER(VER_1_2);
 		nex[0]='R';
 		dd2nex(ra, de, nex+1);
 		if (write_telescope(dev, nex, 10) < 1) return RC_FAILED;
@@ -131,10 +153,12 @@ int _tc_goto_azalt(int dev, double az, double alt, char precise) {
 	if ((alt < -90.1) || (alt > 90.1)) return RC_PARAMS;
 
 	if (precise) {
+		REQUIRE_VER(VER_2_2);
 		nex[0]='b';
 		dd2pnex(az, alt, nex+1);
 		if (write_telescope(dev, nex, 18) < 1) return RC_FAILED;
 	} else {
+		REQUIRE_VER(VER_1_2);
 		nex[0]='B';
 		dd2nex(az, alt, nex+1);
 		if (write_telescope(dev, nex, 10) < 1) return RC_FAILED;
@@ -148,6 +172,8 @@ int _tc_goto_azalt(int dev, double az, double alt, char precise) {
 int _tc_sync_rade(int dev, double ra, double de, char precise) {
 	char nex[18];
 	char reply;
+
+	REQUIRE_VER(VER_4_10);
 
 	if ((ra < 0) || (ra > 360)) return RC_PARAMS;
 	if ((de < -90) || (de > 90)) return RC_PARAMS;
@@ -170,6 +196,8 @@ int _tc_sync_rade(int dev, double ra, double de, char precise) {
 int tc_check_align(int dev) {
 	char reply[2];
 
+	REQUIRE_VER(VER_1_2);
+
 	if (write_telescope(dev, "J", 1) < 1) return RC_FAILED;
 
 	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
@@ -179,6 +207,8 @@ int tc_check_align(int dev) {
 
 int tc_goto_in_progress(int dev) {
 	char reply[2];
+
+	REQUIRE_VER(VER_1_2);
 
 	if (write_telescope(dev, "L", 1) < 1) return RC_FAILED;
 
@@ -192,6 +222,9 @@ int tc_goto_in_progress(int dev) {
 
 int tc_goto_cancel(int dev) {
 	char reply;
+
+	REQUIRE_VER(VER_1_2);
+
 	if (write_telescope(dev, "M", 1) < 1) return RC_FAILED;
 
 	if (read_telescope(dev, &reply, sizeof reply) < 0) return RC_FAILED;
@@ -203,6 +236,8 @@ int tc_goto_cancel(int dev) {
 
 int tc_echo(int dev, char ch) {
 	char buf[2];
+
+	REQUIRE_VER(VER_1_2);
 
 	buf[0] = 'K';
 	buf[1] = ch;
@@ -216,6 +251,8 @@ int tc_echo(int dev, char ch) {
 int tc_get_model(int dev) {
 	char reply[2];
 
+	REQUIRE_VER(VER_2_2);
+
 	if (write_telescope(dev, "m", 1) < 1) return RC_FAILED;
 
 	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
@@ -225,6 +262,8 @@ int tc_get_model(int dev) {
 
 int tc_get_version(int dev, char *major, char *minor) {
 	char reply[3];
+
+	REQUIRE_VER(VER_1_2);
 
 	if (write_telescope(dev, "V", 1) < 1) return RC_FAILED;
 
@@ -238,6 +277,8 @@ int tc_get_version(int dev, char *major, char *minor) {
 int tc_get_tracking_mode(int dev) {
 	char reply[2];
 
+	REQUIRE_VER(VER_2_3);
+
 	if (write_telescope(dev, "t", 1) < 1) return RC_FAILED;
 
 	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
@@ -248,6 +289,9 @@ int tc_get_tracking_mode(int dev) {
 int tc_set_tracking_mode(int dev, char mode) {
 	char cmd[2];
 	char res;
+
+	REQUIRE_VER(VER_1_6);
+
 	if ((mode < 0) || (mode > 3)) return RC_FAILED;
 
 	cmd[0] = 'T';
@@ -263,6 +307,8 @@ int tc_set_tracking_mode(int dev, char mode) {
 int tc_slew_fixed(int dev, char axis, char direction, char rate) {
 	char axis_id, cmd_id, res;
 
+	REQUIRE_VER(VER_1_6);
+
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
 
@@ -276,6 +322,8 @@ int tc_slew_fixed(int dev, char axis, char direction, char rate) {
 
 int tc_slew_variable(int dev, char axis, char direction, float rate) {
 	char axis_id, cmd_id, res;
+
+	REQUIRE_VER(VER_1_6);
 
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
@@ -293,6 +341,8 @@ int tc_slew_variable(int dev, char axis, char direction, float rate) {
 
 int tc_get_location(int dev, double *lon, double *lat) {
 	unsigned char reply[9];
+
+	REQUIRE_VER(VER_2_3);
 
 	if (write_telescope(dev, "w", 1) < 1) return RC_FAILED;
 
@@ -313,6 +363,8 @@ int tc_set_location(int dev, double lon, double lat) {
 	unsigned char cmd[9];
 	char res;
 	unsigned char deg, min, sec, sign;
+
+	REQUIRE_VER(VER_2_3);
 
 	cmd[0] = 'W';
 	dd2dms(lat, &deg, &min, &sec, (char *)&sign);
@@ -343,6 +395,8 @@ int tc_set_location(int dev, double lon, double lat) {
 time_t tc_get_time(int dev, time_t *ttime, int *tz, int *dst) {
 	char reply[9];
 	struct tm tms;
+
+	REQUIRE_VER(VER_2_3);
 
 	if (write_telescope(dev, "h", 1) < 1) return RC_FAILED;
 
@@ -376,6 +430,8 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	int model;
 	int timezone;
 	time_t utime;
+
+	REQUIRE_VER(VER_2_3);
 
 	timezone = tz;
 	if (tz < 0) tz += 256;
@@ -504,6 +560,8 @@ int tc_get_autoguide_rate(int dev, char axis) {
 	char axis_id;
 	char res[2];
 
+	REQUIRE_VER(VER_AUX);
+
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
 
@@ -520,6 +578,8 @@ int tc_set_autoguide_rate(int dev, char axis, char rate) {
 	char axis_id;
 	char res;
 	unsigned char rrate;
+
+	REQUIRE_VER(VER_AUX);
 
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
@@ -541,6 +601,8 @@ int tc_get_backlash(int dev, char axis, char direction) {
 	char axis_id, cmd_id;
 	char res[2];
 
+	REQUIRE_VER(VER_AUX);
+
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
 
@@ -556,6 +618,8 @@ int tc_get_backlash(int dev, char axis, char direction) {
 
 int tc_set_backlash(int dev, char axis, char direction, char backlash) {
 	char res, axis_id, cmd_id;
+
+	REQUIRE_VER(VER_AUX);
 
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;

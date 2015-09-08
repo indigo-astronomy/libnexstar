@@ -77,10 +77,10 @@ char *dd2a(double a, int plus)
 	deg=(int)a;
 	sec=(a-(int)(a))*3600;
 	min=sec/60;
-	sec=abs(sec-min*60);
-	
-	
-#ifdef HUNDRETHS	
+	sec=fabs(sec-min*60);
+
+
+#ifdef HUNDRETHS
 	if (sign < 0) sprintf(str,"-%d:%02d:%05.2f",deg,min,sec);
 	else if (plus>0) 
 		sprintf(str,"+%d:%02d:%05.2f",deg,min,sec);

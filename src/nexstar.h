@@ -35,9 +35,24 @@
 #define RC_PARAMS (-2)	/* invalid parameters */
 #define RC_DEVICE (-3)	/* no responce from the device */
 #define RC_DATA (-4)	/* invalid data */
+#define RC_UNSUPPORTED (-5) /* Unsupported command */
 
 #define DEG2RAD (3.1415926535897932384626433832795/180.0)
 #define RAD2DEG (180.0/3.1415926535897932384626433832795)
+
+/* Supported NexStar protocol versions */
+#define VER_1_2  0x102
+#define VER_1_6  0x106
+#define VER_2_2  0x202
+#define VER_2_3  0x203
+#define VER_3_1  0x301
+#define VER_4_10 0x40A
+/* All protocol versions */
+#define VER_AUX  0xFFFF
+#define VER_AUTO 0x0
+
+extern int proto_version;
+#define REQUIRE_VER(ver) { if((ver) < proto_version) return RC_UNSUPPORTED; }
 
 #include <time.h>
 #include <unistd.h>
@@ -49,6 +64,7 @@ extern "C" {
 /* Telescope communication */
 int open_telescope(char *dev_file);
 int close_telescope(int dev_fd);
+int enforce_proto_version(int devfd, int ver);
 #define write_telescope(dev_fd, buf, size) (write(dev_fd, buf, size))
 int read_telescope(int devfd, char *reply, int len);
 
