@@ -52,7 +52,7 @@
 #define VER_AUTO 0x0
 
 extern int proto_version;
-#define REQUIRE_VER(ver) { if((ver) < proto_version) return RC_UNSUPPORTED; }
+#define REQUIRE_VER(req_ver) { if(req_ver > proto_version) return RC_UNSUPPORTED; }
 
 #include <time.h>
 #include <unistd.h>
