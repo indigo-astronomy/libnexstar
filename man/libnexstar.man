@@ -25,6 +25,25 @@ stop bit via the RS-232 port on the base of the hand control.
 
 Communication can be established over TCP/IP if nexbridge is running
 on the computer connected to the telescope.
+.SH RETURN CODES
+.B #define RC_OK (0)
+/* success */
+
+.B #define RC_FAILED (-1)
+/* general error */
+
+.B #define RC_PARAMS (-2)
+/* invalid parameters */
+
+.B #define RC_DEVICE (-3)
+/* no responce from the device */
+
+.B #define RC_DATA (-4)
+/* invalid data */
+
+.B #define RC_UNSUPPORTED (-5)
+/* unsupported command */
+
 .SH CALLS
 
 .SS TELESCOPE COMMUNICATION
@@ -58,7 +77,21 @@ bytes are read or on error -1 is returned.
 This call is intended for internal library use.
 .TP
 .B int enforce_proto_version(int devfd, int ver);
-(TBD) FORCE PROTOCOL VERSION DEFAULT IS ALL.
+Enforce protocol minimal version checking. If a specific command is not supported by the firmware version given in
+.B ver
+the corresponding tc_*() call will fail with RC_UNSUPPORTED (-5). Valid version threholds are: VER_1_2, VER_1_6, VER_2_2, VER_2_3,
+VER_3_1, VER_4_10, VER_AUX and VER_AUTO. If
+.B ver
+is set to VER_AUX, version enforcement is disabled and all commands are enabled but some may fail, because
+they may not be supported by the current hand controller firmware. To avoid this VER_AUTO sets the version
+to the value reported by the currently connected hand controller. By default protocol version enforcement is disabled
+and the unsupported commands will either timeout or return erratic results. Because of this, calling
+.B enforce_proto_version()
+with VER_AUTO right after
+.B open_telescope()
+is highly recommended.
+
+NOTE: The non-documented (AUX) commands are available only when the enforcement is disabled.
 .TP
 .B int write_telescope(int dev_fd, char *buf, sizet size);
 Writes
@@ -96,7 +129,7 @@ documentation provided by Celestron.
 .TP
 .B int tc_get_version(int dev, char *major, char *minor);
 Get the firmware version as major and minor numbers. It should be used in "major.minor" notation.
-On success 0 is returned, on error -1.
+On success >0 is returned, on error -1.
 .TP
 .B int tc_get_tracking_mode(int dev);
 Get the current tracking mode. Possible values are
