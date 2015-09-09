@@ -38,14 +38,13 @@ int close_telescope(int devfd) {
 }
 
 int enforce_proto_version(int devfd, int ver) {
-	char major,minor;
 	int version;
 	if (ver != VER_AUTO) {
 		proto_version = ver;
 		return RC_OK;
 	}
 
-	version = tc_get_version(devfd, &major, &minor);
+	version = tc_get_version(devfd, NULL, NULL);
 	if (version < 0) return version;
 	proto_version = version;
 	return RC_OK;
@@ -269,8 +268,8 @@ int tc_get_version(int dev, char *major, char *minor) {
 
 	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
 
-	*major = reply[0];
-	*minor = reply[1];
+	if (major) *major = reply[0];
+	if (minor) *minor = reply[1];
 	return (reply[0] << 8) + reply[1];
 }
 
