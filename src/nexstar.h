@@ -51,8 +51,13 @@
 #define VER_AUX  0xFFFF
 #define VER_AUTO 0x0
 
-extern int proto_version;
-#define REQUIRE_VER(req_ver) { if(req_ver > proto_version) return RC_UNSUPPORTED; }
+/* There is no way to tell SkyWatcher from Celestron. Unfortunately both share the
+   same IDs and some Celestron mounts have RTC wile SW does not. That is why the user
+   should decide. Set nexstar_use_rtc to 1 to enable using the RTC on the mounts that have RTC. */
+extern int nexstar_use_rtc;
+
+extern int nexstar_proto_version;
+#define REQUIRE_VER(req_ver) { if(req_ver > nexstar_proto_version) return RC_UNSUPPORTED; }
 
 #include <time.h>
 #include <unistd.h>

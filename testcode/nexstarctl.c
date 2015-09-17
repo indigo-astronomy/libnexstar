@@ -16,7 +16,8 @@ int main(int argc, char *argv[]) {
 //	dd2dms(-22.9998, &deg, &min, &sec, &sign);
 //	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));
 
-	int dev = open_telescope("/dev/cu.usbserial");
+	//nexstar_use_rtc = 1;
+	int dev = open_telescope("/dev/ttyUSB0");
 	printf("dev = %d\n", dev);
 //	int align = tc_check_align(dev);
 //	printf("align = %d\n", align);
@@ -49,11 +50,11 @@ int main(int argc, char *argv[]) {
 //	printf("lon = %f, lat = %f, res = %d\n", lon, lat, r);
 
 
-//	time_t tm;
-//	time(&tm);
-//	printf("TTT %d\n",tc_set_time(dev, tm, 2, 0));
+	time_t tm;
+	time(&tm);
+	printf("tc_set_time() = %d\n",tc_set_time(dev, tm, 2, 0));
 
-/*	
+/*
 	printf("%s %s\n",argv[1], argv[2]);
 	
 	a2dd(&ra, argv[1]);
@@ -64,10 +65,10 @@ int main(int argc, char *argv[]) {
 //	printf("RA= %f, DE= %f, res = %d\n", ra, de, res);
 
 
-for (ra = -1.9999, de = -91.00000001; ra<=361; ra++, de++) { 		
-	dd2pnex(ra,de, nex);
-	printf("%s => R=%f D=%f\n",nex, ra,de);
-}
+//for (ra = -1.9999, de = -91.00000001; ra<=361; ra++, de++) {
+//	dd2pnex(ra,de, nex);
+//	printf("%s => R=%f D=%f\n",nex, ra,de);
+//}
 /*
 	nex2dd(nex, &d1, &d2);
 	printf("%f, %f\n",d1,d2);

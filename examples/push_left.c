@@ -4,6 +4,10 @@
 int push_button_left(int dev, int seconds) {
 	/* save the current trackig mode */
 	int tracking_mode = tc_get_tracking_mode(dev);
+	if (tracking_mode == RC_UNSUPPORTED) {
+		printf("Get tracking mode in unnsupported on this mount assuming: EQ NORTH\n");
+		tracking_mode = TC_TRACK_EQ_NORTH;
+	} else if (tracking_mode < 0) return tracking_mode;
 
 	/* Celestron advises to disable tracking before issuing slew
 	commands at rates above 2 and reenable it after finishing */
@@ -40,10 +44,12 @@ int main(int argc, char *argv[]) {
 	       	printf("Can not open device: %s\n", argv[1]);
 		return 1;
 	}
+	enforce_proto_version(dev,VER_AUTO);
+
 	/* simulate pushing the left hand control button for 3 seconds */
 	int result = push_button_left(dev, 3);
 	if (result < 0) {
-		printf("Something went wrong!\n");
+		printf("Something went wrong! Error code: %d\n", result);
 		close_telescope(dev);
 		return 1;
 	} 

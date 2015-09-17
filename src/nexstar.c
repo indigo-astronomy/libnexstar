@@ -14,7 +14,11 @@
 
 #include <time.h>
 
-int proto_version = VER_AUX;
+/* do not check protocol version by default */
+int nexstar_proto_version = VER_AUX;
+
+/* do not use RTC by default */
+int nexstar_use_rtc = 0;
 
 /*****************************************************
  Telescope communication
@@ -40,13 +44,13 @@ int close_telescope(int devfd) {
 int enforce_proto_version(int devfd, int ver) {
 	int version;
 	if (ver != VER_AUTO) {
-		proto_version = ver;
+		nexstar_proto_version = ver;
 		return RC_OK;
 	}
 
 	version = tc_get_version(devfd, NULL, NULL);
 	if (version < 0) return version;
-	proto_version = version;
+	nexstar_proto_version = version;
 	return RC_OK;
 }
 
@@ -456,6 +460,8 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 
 	if (read_telescope(dev, &res, sizeof res) < 0) return RC_FAILED;
+
+	if (!nexstar_use_rtc) return RC_OK;
 
 	model = tc_get_model(dev);
 	if (model <= 0) return model;

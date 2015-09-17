@@ -16,15 +16,21 @@ For periodic error correction commands:
 
 .SH DESCRIPTION
 This library implements the serial commands supported by the Celestron
-NexStar hand control. This applies to the NexStar GPS, NexStar GPS-SA,
-NexStar iSeries, NexStar SE Series, NexStar GT, CPC, SLT, Advanced-VX,
-Advanced-GT, and CGE mounts.
+NexStar hand control (HC) and SkyWatcher/Orion SynScan HC. This applies
+to the Celestron: NexStar GPS, NexStar GPS-SA, NexStar iSeries, NexStar SE Series,
+NexStar GT, CPC, SLT, Advanced-VX, Advanced-GT, CGE, CGEM etc. SkyWatcher: EQ5, HEQ5,
+EQ6 (Pro), AZ-EQ5 GT, AZ-EQ6 GT, EQ8 etc. and the corresponding Orion mounts.
 
 Communication to the hand control is 9600 bits/sec, no parity and one
 stop bit via the RS-232 port on the base of the hand control.
 
 Communication can be established over TCP/IP if nexbridge is running
 on the computer connected to the telescope.
+
+NOTE: For SkyWatcher/Orion mounts it is highly recommended to enforce protocol
+version checking (see enforce_proto_version()) as the AUX commands are not supported
+or may behave erratically.
+
 .SH RETURN CODES
 .B #define RC_OK (0)
 /* success */
@@ -219,12 +225,18 @@ Read current time (in unix time as given by time() syscall), timezone (as GMT of
 .B int tc_set_time(char dev, time_t ttime, int tz, int dst);
 Set the telescope time (in unix time as given by time() syscall), timezone (as GMT offset) and daylight saving as 
 (0 or 1) from
-.B ttime
-,
+.B ttime,
 .B tz
 and
 .B dst. 
-On success 0 is returned or -1 on error. If the mount is known to have RTC (currently only CGE and AdvancedVX) the date/time is set to RTC too. 
+On success 0 is returned or -1 on error. If the mount is known to have RTC (currently only CGE and AdvancedVX)
+and the variable
+.B nexstar_use_rtc
+!= 0 (default is 0), the date/time is set to the RTC too.
+
+NOTE: Do not set
+.B nexstar_use_rtc
+if the mount is SkyWatcher otherwise tc_set_time() may fail.
 .TP
 .B int tc_slew_fixed(int dev, char axis, char direction, char rate);
 Start/stop slew around axis TC_AXIS_RA, TC_AXIS_AZM, TC_AXIS_DE or TC_AXIS_ALT 
