@@ -19,6 +19,11 @@ int main(int argc, char *argv[]) {
 	//nexstar_use_rtc = 1;
 	int dev = open_telescope("/dev/ttyUSB0");
 	printf("dev = %d\n", dev);
+
+	//enforce_proto_version(dev,VER_1_2);
+	//enforce_mount_vendor(VNDR_CELESTRON);
+	char o = tc_get_orientation(dev);
+	printf("ori = %c (%d)\n", o, o);
 //	int align = tc_check_align(dev);
 //	printf("align = %d\n", align);
 
@@ -128,8 +133,8 @@ int main(int argc, char *argv[]) {
 */	
 	unsigned char major;
 	unsigned char minor;
-	tc_get_version(dev,(char*) &major,(char*) &minor);
-	printf("Version %d.%d\n", major, minor);
+	int ver = tc_get_version(dev,(char*) &major,(char*) &minor);
+	printf("Version %d.%d 0x%x\n", major, minor, ver);
 /*	
 	sleep(5);
 //	move = tc_slew_fixed(dev, TC_AXIS_DE, TC_DIR_POSITIVE, 7);

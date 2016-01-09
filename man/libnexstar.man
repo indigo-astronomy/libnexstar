@@ -42,7 +42,7 @@ or may behave erratically.
 /* invalid parameters */
 
 .B #define RC_DEVICE (-3)
-/* no responce from the device */
+/* no response from the device */
 
 .B #define RC_DATA (-4)
 /* invalid data */
@@ -56,8 +56,8 @@ or may behave erratically.
 .TP
 .B int open_telescope(char *dev_file);
 Opens serial port to communicate with the telescope and configures it accordingly.
-If the dev_file has "tcp://" prefix the rest of the string is interptered as an IP
-address and port where to connnect to (like "tcp://localhost:9999").
+If the dev_file has "tcp://" prefix the rest of the string is interpreted as an IP
+address and port where to connect to (like "tcp://localhost:9999").
 On success it returns a file descriptor of the device, on error -1 is returned.
 
 NOTE: To be used with TCP you need to run nexbridge on the remote computer.
@@ -82,11 +82,21 @@ is returned. If less then
 bytes are read or on error -1 is returned.
 This call is intended for internal library use.
 .TP
+.B int write_telescope(int dev_fd, char *buf, sizet size);
+Writes
+.B size
+bytes of data pointed by
+.B *buf
+in
+.B dev_fd.
+It returns the same values as write() syscall.
+This call is intended for internal library use.
+.TP
 .B int enforce_proto_version(int devfd, int ver);
 Enforce protocol minimal version checking. If a specific command is not supported by the firmware version given in
 .B ver
-the corresponding tc_*() call will fail with RC_UNSUPPORTED (-5). Valid version threholds are: VER_1_2, VER_1_6, VER_2_2, VER_2_3,
-VER_3_1, VER_4_10, VER_AUX and VER_AUTO. If
+the corresponding tc_*() call will fail with RC_UNSUPPORTED (-5). Valid version thresholds are: VER_1_2, VER_1_6, VER_2_2, VER_2_3,
+VER_3_1, VER_4_10, VER_4_37_8, VER_AUX and VER_AUTO. If
 .B ver
 is set to VER_AUX, version enforcement is disabled and all commands are enabled but some may fail, because
 they may not be supported by the current hand controller firmware. To avoid this VER_AUTO sets the version
@@ -99,21 +109,20 @@ is highly recommended.
 
 NOTE: The non-documented (AUX) commands are available only when the enforcement is disabled.
 .TP
-.B int write_telescope(int dev_fd, char *buf, sizet size);
-Writes
-.B size
-bytes of data pointed by
-.B *buf
-in
-.B dev_fd.
-It returns the same values as write() syscall.
-This call is intended for internal library use.
+.B int guess_mount_vendor(int dev);
+(TBD)
+.TP
+.B int enforce_mount_vendor(int vendor);
+(TBD)
 
 .SS TELESCOPE CONTROL
 .TP
 .B int tc_check_align(int dev);
 If the telescope alignment process is complete 1 is returned. If it is not complete 0 is returned.
 On error -1 is returned.
+.TP
+.B int tc_get_orientation(int dev);
+(TBD)
 .TP
 .B int tc_goto_in_progress(int dev);
 If the telescope is slewing to an object 1 is returned. If slewing is complete 0 is returned.
@@ -299,7 +308,7 @@ on error -1.
 Set anti-backlash value for axis TC_AXIS_RA, TC_AXIS_AZM, TC_AXIS_DE or TC_AXIS_ALT
 and direction TC_DIR_POSITIVE or TC_DIR_NEGATIVE. Note that TC_AXIS_RA and TC_AXIS_AZM
 are different names for the same axis and can be used interchangeably. The same applies
-to TC_AXIS_DE and TC_AXIS_ALT. Backlash should be in rabge [0-99].
+to TC_AXIS_DE and TC_AXIS_ALT. Backlash should be in range [0-99].
 On success 0 is returned, on error -1. If backlash is out of range -2 is returned.
 .TP
 .B int tc_pass_through_cmd(int dev, char msg_len, char dest_id, char cmd_id, char data1, char data2, char data3, char res_len, char *response);
@@ -314,7 +323,7 @@ commands are reverse engineered and may not work exactly as expected.
 .B int pec_index_found(int dev);
 Determine if the position index is found and the mount will know from where to start
 PEC data playback. If the index is found 1 is returned. If it is not found 0 is returned.
-In case of an error the function returs -1.
+In case of an error the function returns -1.
 .TP
 .B int pec_seek_index(int dev);
 This command will move the mount slightly until the position index is found, so that the PEC
@@ -328,7 +337,7 @@ be PEC_START or PEC_STOP to start or stop the recording. The completion of the r
 can be monitored with pec_record_complete(). The data is collected by the mount from the
 user or auto-guider corrections made during the recording process. This recording can take
 10-15 minutes depending on the type of the mount. On success 0 is returned. In case of an
-error -1 is returned. If wrong paramtere is provided -2 is returned.
+error -1 is returned. If wrong parameter is provided -2 is returned.
 .TP
 .B int pec_record_complete(int dev);
 Check the completion of pec_record(). If recording is complete 1 is returned. If recording is
@@ -340,7 +349,7 @@ to start or stop PEC playback respectively. On success 0 is returned. If a wrong
 provided -2 is returned. In case of an error -1 is returned.
 .TP
 .B int pec_get_playback_index(int dev);
-Get the index of the PEC data for the curent mount position in the range form 0 to
+Get the index of the PEC data for the current mount position in the range form 0 to
 the value returned by pec_get_data_len() minus 1. If the index position is not found yet, the
 function will always return 0. On error -1 is returned.
 .TP

@@ -17,6 +17,8 @@
 /* do not check protocol version by default */
 int nexstar_proto_version = VER_AUX;
 
+int nexstar_mount_vendor = VNDR_ALL;
+
 /* do not use RTC by default */
 int nexstar_use_rtc = 0;
 
@@ -24,17 +26,25 @@ int nexstar_use_rtc = 0;
  Telescope communication
  *****************************************************/
 int open_telescope(char *dev_file) {
-	int port;
+	int port, dev_fd;
 	char host[255];
 
 	if (parse_devname(dev_file, host, &port)) {
 		/* this is network address */
-		return open_telescope_tcp(host, port);
+		dev_fd = open_telescope_tcp(host, port);
 	} else {
 		/* should be tty port */
-		return open_telescope_rs(dev_file);
+		dev_fd = open_telescope_rs(dev_file);
 	}
-	return 0;
+	if (dev_fd < 0) return dev_fd;
+
+	nexstar_mount_vendor = guess_mount_vendor(dev_fd);
+	if(nexstar_mount_vendor < 0) {
+		close_telescope(dev_fd);
+		return RC_FAILED;
+	}
+
+	return dev_fd;
 }
 
 int close_telescope(int devfd) {
@@ -54,7 +64,7 @@ int enforce_proto_version(int devfd, int ver) {
 	return RC_OK;
 }
 
-int read_telescope(int devfd, char *reply, int len) {
+int _read_telescope(int devfd, char *reply, int len, char fl) {
 	char c;
 	int res;
 	int count=0;
@@ -63,6 +73,7 @@ int read_telescope(int devfd, char *reply, int len) {
 		if (res == 1) {
 			reply[count] = c;
 			count++;
+			if ((fl) && (c == '#')) return count;
 			//printf("R: %d, C:%d\n", (unsigned char)reply[count-1], count);
 		} else {
 			return RC_FAILED;
@@ -80,6 +91,32 @@ int read_telescope(int devfd, char *reply, int len) {
 		}
 	}
 	return RC_FAILED;
+}
+
+int guess_mount_vendor(int dev) {
+	char reply[7];
+	int res;
+
+	REQUIRE_VER(VER_1_2);
+
+	if (write_telescope(dev, "V", 1) < 1) return RC_FAILED;
+
+	res = read_telescope_vl(dev, reply, sizeof reply);
+	if (res < 0) return RC_FAILED;
+
+	if (res == 3) { /* Celestron */
+		return VNDR_CELESTRON;
+	} else if (res == 7) { /* SkyWatcher */
+		return VNDR_SKYWATCHER;
+	}
+	return RC_FAILED;
+}
+
+int enforce_mount_vendor(int vendor) {
+
+	if ((vendor != VNDR_CELESTRON) && (vendor != VNDR_SKYWATCHER)) return RC_FAILED;
+	nexstar_mount_vendor = vendor;
+	return vendor;
 }
 
 /*****************************************************
@@ -208,6 +245,19 @@ int tc_check_align(int dev) {
 	return reply[0];
 }
 
+int tc_get_orientation(int dev) {
+	char reply[2];
+
+	REQUIRE_VER(VER_4_37_8);
+	REQUIRE_VENDOR(VNDR_SKYWATCHER);
+
+	if (write_telescope(dev, "p", 1) < 1) return RC_FAILED;
+
+	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
+
+	return reply[0];
+}
+
 int tc_goto_in_progress(int dev) {
 	char reply[2];
 
@@ -264,17 +314,34 @@ int tc_get_model(int dev) {
 }
 
 int tc_get_version(int dev, char *major, char *minor) {
-	char reply[3];
+	char reply[7];
+	int res;
 
 	REQUIRE_VER(VER_1_2);
 
 	if (write_telescope(dev, "V", 1) < 1) return RC_FAILED;
 
-	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
+	res = read_telescope_vl(dev, reply, (sizeof reply));
+	if (res < 0) return RC_FAILED;
 
-	if (major) *major = reply[0];
-	if (minor) *minor = reply[1];
-	return (reply[0] << 8) + reply[1];
+	if (res == 3) { /* Celestron */
+		if (major) *major = reply[0];
+		if (minor) *minor = reply[1];
+		return ((reply[0] << 16) + (reply[1] << 8));
+	} else if (res == 7) { /* SkyWatcher */
+		printf("1\n");
+		long maj, min, subv;
+		reply[6] = '\0';
+		subv = strtol(reply+4, NULL, 16);
+		reply[4] = '\0';
+		min = strtol(reply+2, NULL, 16);
+		reply[2] = '\0';
+		maj = strtol(reply, NULL, 16);
+		if (major) *major = maj;
+		if (minor) *minor = min;
+		return ((maj << 16) + (min << 8) + subv);
+	}
+	return RC_FAILED;
 }
 
 int tc_get_tracking_mode(int dev) {
@@ -500,46 +567,78 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 }
 
 char *get_model_name(int id, char *name, int len) {
-	switch(id) {
-	case 1:
-		strncpy(name,"NexStar GPS Series",len);
-		return name;
-	case 3:
-		strncpy(name,"NexStar i-Series",len);
-		return name;
-	case 4:
-		strncpy(name,"NexStar i-Series SE",len);
-		return name;
-	case 5:
-		strncpy(name,"CGE",len);
-		return name;
-	case 6:
-		strncpy(name,"Advanced GT",len);
-		return name;
-	case 7:
-		strncpy(name,"SLT",len);
-		return name;
-	case 9:
-		strncpy(name,"CPC",len);
-		return name;
-	case 10:
-		strncpy(name,"GT",len);
-		return name;
-	case 11:
-		strncpy(name,"NexStar 4/5 SE",len);
-		return name;
-	case 12:
-		strncpy(name,"NexStar 6/8 SE",len);
-		return name;
-	case 14:
-		strncpy(name,"CGEM",len);
-		return name;
-	case 20:
-		strncpy(name,"Advanced VX",len);
-		return name;
-	default:
-		name[0]='\0';
-		return NULL;
+	if (nexstar_mount_vendor & VNDR_CELESTRON) {
+		switch(id) {
+		case 1:
+			strncpy(name,"NexStar GPS Series",len);
+			return name;
+		case 3:
+			strncpy(name,"NexStar i-Series",len);
+			return name;
+		case 4:
+			strncpy(name,"NexStar i-Series SE",len);
+			return name;
+		case 5:
+			strncpy(name,"CGE",len);
+			return name;
+		case 6:
+			strncpy(name,"Advanced GT",len);
+			return name;
+		case 7:
+			strncpy(name,"SLT",len);
+			return name;
+		case 9:
+			strncpy(name,"CPC",len);
+			return name;
+		case 10:
+			strncpy(name,"GT",len);
+			return name;
+		case 11:
+			strncpy(name,"NexStar 4/5 SE",len);
+			return name;
+		case 12:
+			strncpy(name,"NexStar 6/8 SE",len);
+			return name;
+		case 14:
+			strncpy(name,"CGEM",len);
+			return name;
+		case 20:
+			strncpy(name,"Advanced VX",len);
+			return name;
+		default:
+			name[0]='\0';
+			return NULL;
+		}
+	} else if (nexstar_mount_vendor & VNDR_SKYWATCHER) {
+		switch(id) {
+		case 0:
+			strncpy(name,"EQ6 Series",len);
+			return name;
+		case 1:
+			strncpy(name,"HEQ5 Series",len);
+			return name;
+		case 2:
+			strncpy(name,"EQ5 Series",len);
+			return name;
+		case 3:
+			strncpy(name,"EQ3 Series",len);
+			return name;
+		case 4:
+			strncpy(name,"EQ8 Series",len);
+			return name;
+		case 5:
+			strncpy(name,"AZ-EQ6 Series",len);
+			return name;
+		case 6:
+			strncpy(name,"AZ-EQ5 Series",len);
+			return name;
+		case 160:
+			strncpy(name,"AllView Series",len);
+			return name;
+		default:
+			name[0]='\0';
+			return NULL;
+		}
 	}
 	return NULL;
 }
@@ -607,6 +706,7 @@ int tc_get_backlash(int dev, char axis, char direction) {
 	char res[2];
 
 	REQUIRE_VER(VER_AUX);
+	REQUIRE_VENDOR(VNDR_CELESTRON);
 
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
@@ -625,6 +725,7 @@ int tc_set_backlash(int dev, char axis, char direction, char backlash) {
 	char res, axis_id, cmd_id;
 
 	REQUIRE_VER(VER_AUX);
+	REQUIRE_VENDOR(VNDR_CELESTRON);
 
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;

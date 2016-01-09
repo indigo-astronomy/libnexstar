@@ -41,15 +41,20 @@
 #define RAD2DEG (180.0/3.1415926535897932384626433832795)
 
 /* Supported NexStar protocol versions */
-#define VER_1_2  0x102
-#define VER_1_6  0x106
-#define VER_2_2  0x202
-#define VER_2_3  0x203
-#define VER_3_1  0x301
-#define VER_4_10 0x40A
+#define VER_1_2  0x10200
+#define VER_1_6  0x10600
+#define VER_2_2  0x20200
+#define VER_2_3  0x20300
+#define VER_3_1  0x30100
+#define VER_4_10 0x40A00
+#define VER_4_37_8 0x42508
 /* All protocol versions */
-#define VER_AUX  0xFFFF
+#define VER_AUX  0xFFFFFF
 #define VER_AUTO 0x0
+
+#define VNDR_CELESTRON  0x1
+#define VNDR_SKYWATCHER 0x2
+#define VNDR_ALL        0xFFFFFF
 
 /* There is no way to tell SkyWatcher from Celestron. Unfortunately both share the
    same IDs and some Celestron mounts have RTC wile SW does not. That is why the user
@@ -58,6 +63,9 @@ extern int nexstar_use_rtc;
 
 extern int nexstar_proto_version;
 #define REQUIRE_VER(req_ver) { if(req_ver > nexstar_proto_version) return RC_UNSUPPORTED; }
+
+extern int nexstar_mount_vendor;
+#define REQUIRE_VENDOR(req_vendor) { if(!(nexstar_mount_vendor & req_vendor)) return RC_UNSUPPORTED; }
 
 #include <time.h>
 #include <unistd.h>
@@ -71,10 +79,17 @@ int open_telescope(char *dev_file);
 int close_telescope(int dev_fd);
 int enforce_proto_version(int devfd, int ver);
 #define write_telescope(dev_fd, buf, size) (write(dev_fd, buf, size))
-int read_telescope(int devfd, char *reply, int len);
+
+int _read_telescope(int devfd, char *reply, int len, char vl); /* DOCS UPD */
+#define read_telescope(devfd, reply, len) (_read_telescope(devfd, reply, len, 0))
+#define read_telescope_vl(devfd, reply, len) (_read_telescope(devfd, reply, len, 1))
+
+int guess_mount_vendor(int dev); /* DOCS UPD */
+int enforce_mount_vendor(int vendor); /* DOCS UPD */
 
 /* Telescope commands */
 int tc_check_align(int dev);
+int tc_get_orientation(int dev); /* DOCS UPD */
 int tc_goto_in_progress(int dev);
 int tc_goto_cancel(int dev);
 int tc_echo(int dev, char ch);
