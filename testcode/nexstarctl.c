@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
 	int dev = open_telescope("/dev/ttyUSB0");
 	printf("dev = %d\n", dev);
 
-//	enforce_proto_version(dev,VER_4_37_8);
-//	enforce_mount_vendor(VNDR_SKYWATCHER);
+//	enforce_protocol_version(dev,VER_4_37_8);
+//	enforce_vendor_protocol(VNDR_SKYWATCHER);
 	char o = tc_get_orientation(dev);
 	printf("ori = %c (%d)\n", o, o);
 //	int align = tc_check_align(dev);

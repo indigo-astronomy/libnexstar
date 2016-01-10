@@ -77,7 +77,7 @@ extern "C" {
 /* Telescope communication */
 int open_telescope(char *dev_file);
 int close_telescope(int dev_fd);
-int enforce_proto_version(int devfd, int ver);
+int enforce_protocol_version(int devfd, int ver);
 #define write_telescope(dev_fd, buf, size) (write(dev_fd, buf, size))
 
 int _read_telescope(int devfd, char *reply, int len, char vl); /* DOCS UPD */
@@ -85,7 +85,7 @@ int _read_telescope(int devfd, char *reply, int len, char vl); /* DOCS UPD */
 #define read_telescope_vl(devfd, reply, len) (_read_telescope(devfd, reply, len, 1))
 
 int guess_mount_vendor(int dev); /* DOCS UPD */
-int enforce_mount_vendor(int vendor); /* DOCS UPD */
+int enforce_vendor_protocol(int vendor); /* DOCS UPD */
 
 /* Telescope commands */
 int tc_check_align(int dev);

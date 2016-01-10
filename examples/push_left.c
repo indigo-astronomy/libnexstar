@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 	       	printf("Can not open device: %s\n", argv[1]);
 		return 1;
 	}
-	enforce_proto_version(dev,VER_AUTO);
+	enforce_protocol_version(dev,VER_AUTO);
 
 	/* simulate pushing the left hand control button for 3 seconds */
 	int result = push_button_left(dev, 3);

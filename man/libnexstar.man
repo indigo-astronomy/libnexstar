@@ -28,7 +28,7 @@ Communication can be established over TCP/IP if nexbridge is running
 on the computer connected to the telescope.
 
 NOTE: For SkyWatcher/Orion mounts it is highly recommended to enforce protocol
-version checking (see enforce_proto_version()) as the AUX commands are not supported
+version checking (see enforce_protocol_version()) as the AUX commands are not supported
 or may behave erratically.
 
 .SH RETURN CODES
@@ -92,7 +92,7 @@ in
 It returns the same values as write() syscall.
 This call is intended for internal library use.
 .TP
-.B int enforce_proto_version(int devfd, int ver);
+.B int enforce_protocol_version(int devfd, int ver);
 Enforce protocol minimal version checking. If a specific command is not supported by the firmware version given in
 .B ver
 the corresponding tc_*() call will fail with RC_UNSUPPORTED (-5). Valid version thresholds are: VER_1_2, VER_1_6, VER_2_2, VER_2_3,
@@ -102,7 +102,7 @@ is set to VER_AUX, version enforcement is disabled and all commands are enabled 
 they may not be supported by the current hand controller firmware. To avoid this VER_AUTO sets the version
 to the value reported by the currently connected hand controller. By default protocol version enforcement is disabled
 and the unsupported commands will either timeout or return erratic results. Because of this, calling
-.B enforce_proto_version()
+.B enforce_protocol_version()
 with VER_AUTO right after
 .B open_telescope()
 is highly recommended.
@@ -114,9 +114,9 @@ This function guesses the manufacturer of the mount by a slight difference in th
 The firmware version command returns 2 bytes for Celestron mounts and 6 bytes for SkyWatcher mounts (since version 4.37.8).
 On success the guessed vendor ID is returned (VNDR_CELESTRON or VNDR_SKYWATCHER). On error -1 is returned.
 
-NOTE: SkyWather mounts with firmware before 4.37.8 will be threated as Celestron in this case enforce_mount_vendor() can be used.
+NOTE: SkyWather mounts with firmware before 4.37.8 will be threated as Celestron in this case enforce_vendor_protocol() can be used.
 .TP
-.B int enforce_mount_vendor(int vendor);
+.B int enforce_vendor_protocol(int vendor);
 This function enforces protocol of the specified vendor to be used overriding the guessed one.
 Valid vendor IDs are VNDR_CELESTRON and VNDR_SKYWATCHER. This way the commands not supported
 by the vendor version of the protocol will fail with RC_UNSUPPORTED (-5). On success the vendor

@@ -51,7 +51,7 @@ int close_telescope(int devfd) {
 	return close(devfd);
 }
 
-int enforce_proto_version(int devfd, int ver) {
+int enforce_protocol_version(int devfd, int ver) {
 	int version;
 	if (ver != VER_AUTO) {
 		nexstar_proto_version = ver;
@@ -112,7 +112,7 @@ int guess_mount_vendor(int dev) {
 	return RC_FAILED;
 }
 
-int enforce_mount_vendor(int vendor) {
+int enforce_vendor_protocol(int vendor) {
 
 	if (!(vendor & VNDR_ALL_SUPPORTED)) return RC_FAILED;
 	nexstar_mount_vendor = vendor;

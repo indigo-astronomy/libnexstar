@@ -15,7 +15,7 @@ Communication can be established over TCP/IP if nexbridge is running
 on the computer connected to the telescope.
 
 NOTE: For SkyWatcher/Orion mounts it is highly recommended to enforce
-protocol version checking (see enforce_proto_version()) as the AUX
+protocol version checking (see enforce_protocol_version()) as the AUX
 commands are not supported or may behave erratically.
 
 
