@@ -54,7 +54,7 @@
 
 #define VNDR_CELESTRON  0x1
 #define VNDR_SKYWATCHER 0x2
-#define VNDR_ALL        0xFFFFFF
+#define VNDR_ALL_SUPPORTED (VNDR_CELESTRON | VNDR_SKYWATCHER)
 
 /* There is no way to tell SkyWatcher from Celestron. Unfortunately both share the
    same IDs and some Celestron mounts have RTC wile SW does not. That is why the user

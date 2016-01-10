@@ -17,7 +17,7 @@
 /* do not check protocol version by default */
 int nexstar_proto_version = VER_AUX;
 
-int nexstar_mount_vendor = VNDR_ALL;
+int nexstar_mount_vendor = VNDR_ALL_SUPPORTED;
 
 /* do not use RTC by default */
 int nexstar_use_rtc = 0;
@@ -114,7 +114,7 @@ int guess_mount_vendor(int dev) {
 
 int enforce_mount_vendor(int vendor) {
 
-	if ((vendor != VNDR_CELESTRON) && (vendor != VNDR_SKYWATCHER)) return RC_FAILED;
+	if (!(vendor & VNDR_ALL_SUPPORTED)) return RC_FAILED;
 	nexstar_mount_vendor = vendor;
 	return vendor;
 }

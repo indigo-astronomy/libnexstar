@@ -20,8 +20,8 @@ int main(int argc, char *argv[]) {
 	int dev = open_telescope("/dev/ttyUSB0");
 	printf("dev = %d\n", dev);
 
-	//enforce_proto_version(dev,VER_1_2);
-	//enforce_mount_vendor(VNDR_CELESTRON);
+//	enforce_proto_version(dev,VER_4_37_8);
+//	enforce_mount_vendor(VNDR_SKYWATCHER);
 	char o = tc_get_orientation(dev);
 	printf("ori = %c (%d)\n", o, o);
 //	int align = tc_check_align(dev);
@@ -33,9 +33,9 @@ int main(int argc, char *argv[]) {
 //	result = tc_pass_through_cmd(dev, 1, 176, 1, 0, 0, 0, 3, res);
 //	printf("GPS read date returned: %d\n", result);
 
-//	int mountno= tc_get_model(dev);
-//	get_model_name(mountno,nex,100);
-//	printf("Mount id=%d name=%s\n", mountno, nex);
+	int mountno= tc_get_model(dev);
+	get_model_name(mountno,nex,100);
+	printf("Mount id=%d name=%s\n", mountno, nex);
 
 /*	
 	unsigned char i, echo;
