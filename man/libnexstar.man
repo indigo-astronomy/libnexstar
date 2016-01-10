@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH libnexstar 7 "September 2013" "libnexstar(7)" "libnexstar manual page"
+.TH libnexstar 7 "January 2016" "libnexstar(7)" "libnexstar manual page"
 .SH NAME
 C API to control NexStar compatible telescopes
 .SH SYNOPSIS
@@ -110,10 +110,17 @@ is highly recommended.
 NOTE: The non-documented (AUX) commands are available only when the enforcement is disabled.
 .TP
 .B int guess_mount_vendor(int dev);
-(TBD)
+This function guesses the manufacturer of the mount by a slight difference in the protocol.
+The firmware version command returns 2 bytes for Celestron mounts and 6 bytes for SkyWatcher mounts (since version 4.37.8).
+On success the guessed vendor ID is returned (VNDR_CELESTRON or VNDR_SKYWATCHER). On error -1 is returned.
+
+NOTE: SkyWather mounts with firmware before 4.37.8 will be threated as Celestron in this case enforce_mount_vendor() can be used.
 .TP
 .B int enforce_mount_vendor(int vendor);
-(TBD)
+This function enforces protocol of the specified vendor to be used overriding the guessed one.
+Valid vendor IDs are VNDR_CELESTRON and VNDR_SKYWATCHER. This way the commands not supported
+by the vendor version of the protocol will fail with RC_UNSUPPORTED (-5). On success the vendor
+ID is returned otherwise it returns -1.
 
 .SS TELESCOPE CONTROL
 .TP
@@ -122,7 +129,8 @@ If the telescope alignment process is complete 1 is returned. If it is not compl
 On error -1 is returned.
 .TP
 .B int tc_get_orientation(int dev);
-(TBD)
+Get the telescope orientation. Character 'E' or 'W' is returned for East and West respectively. If no response received, -1
+is returned.
 .TP
 .B int tc_goto_in_progress(int dev);
 If the telescope is slewing to an object 1 is returned. If slewing is complete 0 is returned.
@@ -238,7 +246,7 @@ Set the telescope time (in unix time as given by time() syscall), timezone (as G
 .B tz
 and
 .B dst. 
-On success 0 is returned or -1 on error. If the mount is known to have RTC (currently only CGE and AdvancedVX)
+On success 0 is returned or -1 on error. If the mount is known to have RTC (currently only CGE and Advanced VX)
 and the variable
 .B nexstar_use_rtc
 != 0 (default is 0), the date/time is set to the RTC too.
