@@ -80,16 +80,16 @@ int close_telescope(int dev_fd);
 int enforce_protocol_version(int devfd, int ver);
 #define write_telescope(dev_fd, buf, size) (write(dev_fd, buf, size))
 
-int _read_telescope(int devfd, char *reply, int len, char vl); /* DOCS UPD */
+int _read_telescope(int devfd, char *reply, int len, char vl);
 #define read_telescope(devfd, reply, len) (_read_telescope(devfd, reply, len, 0))
 #define read_telescope_vl(devfd, reply, len) (_read_telescope(devfd, reply, len, 1))
 
-int guess_mount_vendor(int dev); /* DOCS UPD */
-int enforce_vendor_protocol(int vendor); /* DOCS UPD */
+int guess_mount_vendor(int dev);
+int enforce_vendor_protocol(int vendor);
 
 /* Telescope commands */
 int tc_check_align(int dev);
-int tc_get_orientation(int dev); /* DOCS UPD */
+int tc_get_orientation(int dev);
 int tc_goto_in_progress(int dev);
 int tc_goto_cancel(int dev);
 int tc_echo(int dev, char ch);
