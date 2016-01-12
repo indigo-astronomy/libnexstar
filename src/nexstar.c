@@ -636,6 +636,14 @@ char *get_model_name(int id, char *name, int len) {
 			strncpy(name,"AllView Series",len);
 			return name;
 		default:
+			if ((id >= 128) && (id <= 143)) {
+				strncpy(name, "AZ Series",len);
+				return name;
+			}
+			if ((id >= 144) && (id <= 159)) {
+				strncpy(name, "DOB series",len);
+				return name;
+			}
 			name[0]='\0';
 			return NULL;
 		}
