@@ -605,6 +605,9 @@ char *get_model_name(int id, char *name, int len) {
 		case 20:
 			strncpy(name,"Advanced VX",len);
 			return name;
+		case 22:
+			strncpy(name,"Nexstar Evolution",len);
+			return name;
 		default:
 			name[0]='\0';
 			return NULL;
