@@ -86,7 +86,7 @@ int _read_telescope(int devfd, char *reply, int len, char fl) {
 		   not respond and the next byte should be '#' (hopefully) */
 		res=read(devfd,&c,1);
 		if ((res == 1) && (c == '#')) {
-			printf("%s(): RC_DEVICE\n",__FUNCTION__);
+			//printf("%s(): RC_DEVICE\n",__FUNCTION__);
 			return RC_DEVICE;
 		}
 	}
@@ -329,7 +329,6 @@ int tc_get_version(int dev, char *major, char *minor) {
 		if (minor) *minor = reply[1];
 		return ((reply[0] << 16) + (reply[1] << 8));
 	} else if (res == 7) { /* SkyWatcher */
-		printf("1\n");
 		long maj, min, subv;
 		reply[6] = '\0';
 		subv = strtol(reply+4, NULL, 16);
