@@ -374,10 +374,10 @@ int tc_set_tracking_mode(int dev, char mode) {
 	char cmd[2];
 	char res;
 	char _mode = 0;
+	double lat;
 
 	REQUIRE_VER(VER_1_6);
 
-	//if ((mode < 0) || (mode > 3)) return RC_FAILED;
 	if (nexstar_mount_vendor == VNDR_SKYWATCHER) {
 		switch (mode) {
 			case TC_TRACK_OFF:
@@ -389,11 +389,7 @@ int tc_set_tracking_mode(int dev, char mode) {
 				break;
 
 			case TC_TRACK_EQ_NORTH:
-				return RC_UNSUPPORTED;
-
 			case TC_TRACK_EQ_SOUTH:
-				return RC_UNSUPPORTED;
-
 			case TC_TRACK_EQ:
 				_mode = SW_TC_TRACK_EQ;
 				break;
@@ -424,7 +420,13 @@ int tc_set_tracking_mode(int dev, char mode) {
 				break;
 
 			case TC_TRACK_EQ:
-				return RC_UNSUPPORTED;
+				res = tc_get_location(dev, NULL, &lat);
+				if (res < 0) return res;
+				if (lat < 0) /* Lat < 0 is South */
+					_mode = NX_TC_TRACK_EQ_SOUTH;
+				else
+					_mode = NX_TC_TRACK_EQ_NORTH;
+				break;
 
 			case TC_TRACK_EQ_PEC:
 				return RC_UNSUPPORTED;
@@ -487,13 +489,18 @@ int tc_get_location(int dev, double *lon, double *lat) {
 
 	if (read_telescope(dev, (char *)reply, sizeof reply) < 0) return RC_FAILED;
 
-	*lat = (double)reply[0] + reply[1]/60.0 + reply[2]/3600.0;
-	*lon = (double)reply[4] + reply[5]/60.0 + reply[6]/3600.0;
-	if (reply[3]) {
-		*lat *= -1;
+	if (lat) {
+		*lat = (double)reply[0] + reply[1]/60.0 + reply[2]/3600.0;
+		if (reply[3]) {
+			*lat *= -1;
+		}
 	}
-	if (reply[7]) {
-		*lon *= -1;
+
+	if (lon) {
+		*lon = (double)reply[4] + reply[5]/60.0 + reply[6]/3600.0;
+		if (reply[7]) {
+			*lon *= -1;
+		}
 	}
 	return RC_OK;
 }

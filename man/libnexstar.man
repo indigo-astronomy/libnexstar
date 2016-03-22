@@ -167,10 +167,20 @@ Get the current tracking mode. Possible values are
 .B TC_TRACK_EQ
 (Equatorial tracking, SkyWatcher only)
 .B TC_TRACK_EQ_PEC
-(Equatorial tracking + PEC, SkyWatcher only) On error -1 is returned.
+(Equatorial tracking + PEC, SkyWatcher only). On error -1 is returned.
 .TP
 .B int tc_set_tracking_mode(int dev, char mode);
-Set the tracking mode. See tc_get_tracking_mode() for the list of the available modes. On success 0 is returned, on error -1,
+Set the tracking mode. See tc_get_tracking_mode() for the list of the available modes.
+.B TC_TRACK_EQ_NORTH, TC_TRACK_EQ_SOUTH
+and
+.B TC_TRACK_EQ
+do the same thing on Sky-Watcher (north or south is handled internally by the HC firmware). For Celestron
+.B TC_TRACK_EQ
+is threated as
+.B TC_TRACK_EQ_NORTH
+or
+.B TC_TRACK_EQ_SOUTH
+depending on the geographic location (Southern or Northern hemisphere). On success 0 is returned, on error -1,
 if mode is invalid -2 (RC_PARAMS) is returned.
 
 NOTE: Some modes are supported only on Celestron, others only on Sky-Watcher.
