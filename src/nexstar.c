@@ -351,20 +351,90 @@ int tc_get_tracking_mode(int dev) {
 	if (write_telescope(dev, "t", 1) < 1) return RC_FAILED;
 
 	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
+	if (nexstar_mount_vendor == VNDR_SKYWATCHER) {
+		switch (reply[0]) {
+			case SW_TC_TRACK_OFF:      return TC_TRACK_OFF;
+			case SW_TC_TRACK_ALT_AZ:   return TC_TRACK_ALT_AZ;
+			case SW_TC_TRACK_EQ:       return TC_TRACK_EQ;
+			case SW_TC_TRACK_EQ_PEC:   return TC_TRACK_EQ_PEC;
+		}
+	} else {
+		switch (reply[0]) {
+			case NX_TC_TRACK_OFF:      return TC_TRACK_OFF;
+			case NX_TC_TRACK_ALT_AZ:   return TC_TRACK_ALT_AZ;
+			case NX_TC_TRACK_EQ_NORTH: return TC_TRACK_EQ_NORTH;
+			case NX_TC_TRACK_EQ_SOUTH: return TC_TRACK_EQ_SOUTH;
+		}
+	}
 
-	return reply[0];
+	return RC_FAILED;
 }
 
 int tc_set_tracking_mode(int dev, char mode) {
 	char cmd[2];
 	char res;
+	char _mode = 0;
 
 	REQUIRE_VER(VER_1_6);
 
-	if ((mode < 0) || (mode > 3)) return RC_FAILED;
+	//if ((mode < 0) || (mode > 3)) return RC_FAILED;
+	if (nexstar_mount_vendor == VNDR_SKYWATCHER) {
+		switch (mode) {
+			case TC_TRACK_OFF:
+				_mode = SW_TC_TRACK_OFF;
+				break;
 
+			case TC_TRACK_ALT_AZ:
+				_mode = SW_TC_TRACK_ALT_AZ;
+				break;
+
+			case TC_TRACK_EQ_NORTH:
+				return RC_UNSUPPORTED;
+
+			case TC_TRACK_EQ_SOUTH:
+				return RC_UNSUPPORTED;
+
+			case TC_TRACK_EQ:
+				_mode = SW_TC_TRACK_EQ;
+				break;
+
+			case TC_TRACK_EQ_PEC:
+				_mode = SW_TC_TRACK_EQ_PEC;
+				break;
+
+			default:
+				return RC_PARAMS;
+		}
+	} else {
+		switch (mode) {
+			case TC_TRACK_OFF:
+				_mode = NX_TC_TRACK_OFF;
+				break;
+
+			case TC_TRACK_ALT_AZ:
+				_mode = NX_TC_TRACK_ALT_AZ;
+				break;
+
+			case TC_TRACK_EQ_NORTH:
+				_mode = NX_TC_TRACK_EQ_NORTH;
+				break;
+
+			case TC_TRACK_EQ_SOUTH:
+				_mode = NX_TC_TRACK_EQ_SOUTH;
+				break;
+
+			case TC_TRACK_EQ:
+				return RC_UNSUPPORTED;
+
+			case TC_TRACK_EQ_PEC:
+				return RC_UNSUPPORTED;
+
+			default:
+				return RC_PARAMS;
+		}
+	}
 	cmd[0] = 'T';
-	cmd[1] = mode;
+	cmd[1] = _mode;
 
 	if (write_telescope(dev, cmd, sizeof cmd) < 1) return RC_FAILED;
 

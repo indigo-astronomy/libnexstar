@@ -6,10 +6,22 @@
 #if !defined(__NEXSTAR_H)
 #define __NEXSTAR_H
 
-#define TC_TRACK_OFF 0
-#define TC_TRACK_ALT_AZ 1
-#define TC_TRACK_EQ_NORTH 2
-#define TC_TRACK_EQ_SOUTH 3
+#define NX_TC_TRACK_OFF      0
+#define NX_TC_TRACK_ALT_AZ   1
+#define NX_TC_TRACK_EQ_NORTH 2
+#define NX_TC_TRACK_EQ_SOUTH 3
+
+#define SW_TC_TRACK_OFF      0
+#define SW_TC_TRACK_ALT_AZ   1
+#define SW_TC_TRACK_EQ       2
+#define SW_TC_TRACK_EQ_PEC   3
+
+#define TC_TRACK_OFF         0
+#define TC_TRACK_ALT_AZ      1
+#define TC_TRACK_EQ_NORTH    2
+#define TC_TRACK_EQ_SOUTH    3
+#define TC_TRACK_EQ          4
+#define TC_TRACK_EQ_PEC      5
 	
 #define TC_DIR_POSITIVE 1
 #define TC_DIR_NEGATIVE 0
