@@ -42,11 +42,11 @@
 #define _TC_AXIS_DE_ALT 17
 
 /* return codes */
-#define RC_OK 0       	/* success */
-#define RC_FAILED (-1)	/* general error */
-#define RC_PARAMS (-2)	/* invalid parameters */
-#define RC_DEVICE (-3)	/* no responce from the device */
-#define RC_DATA (-4)	/* invalid data */
+#define RC_OK            0	/* success */
+#define RC_FAILED      (-1)	/* general error */
+#define RC_PARAMS      (-2)	/* invalid parameters */
+#define RC_DEVICE      (-3)	/* no responce from the device */
+#define RC_DATA        (-4)	/* invalid data */
 #define RC_UNSUPPORTED (-5) /* Unsupported command */
 
 #define DEG2RAD (3.1415926535897932384626433832795/180.0)
@@ -59,6 +59,7 @@
 #define VER_2_3  0x20300
 #define VER_3_1  0x30100
 #define VER_4_10 0x40A00
+#define VER_3_37_8 0x32508
 #define VER_4_37_8 0x42508
 /* All protocol versions */
 #define VER_AUX  0xFFFFFF
@@ -74,10 +75,25 @@
 extern int nexstar_use_rtc;
 
 extern int nexstar_proto_version;
-#define REQUIRE_VER(req_ver) { if(req_ver > nexstar_proto_version) return RC_UNSUPPORTED; }
+/* version check macros */
+#define RELEASE_MASK  0xFF0000
+#define REVISION_MASK 0x00FF00
+#define PATCH_MASK    0x0000FF
+
+#define GET_RELEASE(ver)  ((ver & RELEASE_MASK)>>16)
+#define GET_REVISION(ver) ((ver & REVISION_MASK)>>8)
+#define GET_PATCH(ver)    (ver & PATCH_MASK)
+
+#define REQUIRE_VER(req_ver)      { if(req_ver > nexstar_proto_version) return RC_UNSUPPORTED; }
+#define REQUIRE_RELEASE(req_ver)  { if ((req_ver) > GET_RELEASE(nexstar_proto_version)) return RC_UNSUPPORTED; }
+#define REQUIRE_REVISION(req_ver) { if ((req_ver) > GET_REVISION(nexstar_proto_version)) return RC_UNSUPPORTED; }
+#define REQUIRE_PATCH(req_ver)    { if ((req_ver) > GET_PATCH(nexstar_proto_version)) return RC_UNSUPPORTED; }
 
 extern int nexstar_mount_vendor;
+/* vendor check macros */
 #define REQUIRE_VENDOR(req_vendor) { if(!(nexstar_mount_vendor & req_vendor)) return RC_UNSUPPORTED; }
+#define VENDOR(vendor) (nexstar_mount_vendor & vendor)
+#define VENDOR_IS(vendor) (nexstar_mount_vendor == vendor)
 
 #include <time.h>
 #include <unistd.h>

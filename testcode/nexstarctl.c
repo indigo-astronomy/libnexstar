@@ -12,6 +12,27 @@ int main(int argc, char *argv[]) {
 	double de;
 	double lon,lat;
 
+/*
+	int dev = 0;
+	int ret = 0;
+
+	enforce_vendor_protocol(VNDR_SKYWATCHER);
+	enforce_protocol_version(dev, 0x42408);
+
+	get_model_name(5,nex,100);
+	printf("Mount id=%d name=%s\n", 5, nex);
+
+	ret = tc_get_orientation(dev);
+	printf("tc_get_orientation = %d\n", ret);
+
+	ret = tc_slew_fixed(dev, TC_AXIS_RA, TC_DIR_NEGATIVE, 5);
+	printf("tc_slew_fixed = %d\n", ret);
+
+	ret = tc_sync_rade(dev, 11, 11);
+	printf("tc_sync_rade = %d\n", ret);
+
+	return 0;
+*/
 //	unsigned char deg,min,sec, sign;
 //	dd2dms(-22.9998, &deg, &min, &sec, &sign);
 //	printf("%d:%d:%d, %d, %s\n",deg,min,sec,sign,dd2a(-22.9998,0));

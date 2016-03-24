@@ -213,7 +213,12 @@ int _tc_sync_rade(int dev, double ra, double de, char precise) {
 	char nex[18];
 	char reply;
 
-	REQUIRE_VER(VER_4_10);
+	if (VENDOR(VNDR_SKYWATCHER)) {
+		REQUIRE_RELEASE(3);
+		REQUIRE_REVISION(37);
+	} else {
+		REQUIRE_VER(VER_4_10);
+	}
 
 	if ((ra < 0) || (ra > 360)) return RC_PARAMS;
 	if ((de < -90) || (de > 90)) return RC_PARAMS;
@@ -248,8 +253,9 @@ int tc_check_align(int dev) {
 int tc_get_orientation(int dev) {
 	char reply[2];
 
-	REQUIRE_VER(VER_4_37_8);
 	REQUIRE_VENDOR(VNDR_SKYWATCHER);
+	REQUIRE_RELEASE(3);
+	REQUIRE_REVISION(37);
 
 	if (write_telescope(dev, "p", 1) < 1) return RC_FAILED;
 
@@ -351,7 +357,7 @@ int tc_get_tracking_mode(int dev) {
 	if (write_telescope(dev, "t", 1) < 1) return RC_FAILED;
 
 	if (read_telescope(dev, reply, sizeof reply) < 0) return RC_FAILED;
-	if (nexstar_mount_vendor == VNDR_SKYWATCHER) {
+	if (VENDOR_IS(VNDR_SKYWATCHER)) {
 		switch (reply[0]) {
 			case SW_TC_TRACK_OFF:      return TC_TRACK_OFF;
 			case SW_TC_TRACK_ALT_AZ:   return TC_TRACK_ALT_AZ;
@@ -378,7 +384,7 @@ int tc_set_tracking_mode(int dev, char mode) {
 
 	REQUIRE_VER(VER_1_6);
 
-	if (nexstar_mount_vendor == VNDR_SKYWATCHER) {
+	if (VENDOR_IS(VNDR_SKYWATCHER)) {
 		switch (mode) {
 			case TC_TRACK_OFF:
 				_mode = SW_TC_TRACK_OFF;
@@ -448,7 +454,12 @@ int tc_set_tracking_mode(int dev, char mode) {
 int tc_slew_fixed(int dev, char axis, char direction, char rate) {
 	char axis_id, cmd_id, res;
 
-	REQUIRE_VER(VER_1_6);
+	if (VENDOR(VNDR_SKYWATCHER)) {
+		REQUIRE_RELEASE(3);
+		REQUIRE_REVISION(1);
+	} else {
+		REQUIRE_VER(VER_1_6);
+	}
 
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
@@ -464,7 +475,12 @@ int tc_slew_fixed(int dev, char axis, char direction, char rate) {
 int tc_slew_variable(int dev, char axis, char direction, float rate) {
 	char axis_id, cmd_id, res;
 
-	REQUIRE_VER(VER_1_6);
+	if (VENDOR(VNDR_SKYWATCHER)) {
+		REQUIRE_RELEASE(3);
+		REQUIRE_REVISION(1);
+	} else {
+		REQUIRE_VER(VER_1_6);
+	}
 
 	if (axis > 0) axis_id = _TC_AXIS_RA_AZM;
 	else axis_id = _TC_AXIS_DE_ALT;
@@ -643,7 +659,7 @@ int tc_set_time(char dev, time_t ttime, int tz, int dst) {
 }
 
 char *get_model_name(int id, char *name, int len) {
-	if (nexstar_mount_vendor & VNDR_CELESTRON) {
+	if(VENDOR(VNDR_CELESTRON)) {
 		switch(id) {
 		case 1:
 			strncpy(name,"NexStar GPS Series",len);
@@ -688,7 +704,7 @@ char *get_model_name(int id, char *name, int len) {
 			name[0]='\0';
 			return NULL;
 		}
-	} else if (nexstar_mount_vendor & VNDR_SKYWATCHER) {
+	} else if(VENDOR(VNDR_SKYWATCHER)) {
 		switch(id) {
 		case 0:
 			strncpy(name,"EQ6 Series",len);
