@@ -1,4 +1,4 @@
-Sun Jan 10 01:09:08 2016
+Thu Apr  6 15:09:08 2016 - 0.15 (skipping 0.14 to catch up with NexStarCtl)
 	- added full SkyWatcher support
 	- distinguish between SkyWatcher and Celestron
 	- new command tc_get_orientation();
